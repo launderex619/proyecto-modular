@@ -7,6 +7,7 @@ Al ser un proyecto de python que secuencialmente va a ir necesitando nuevos modu
 - Para la estructura del proyecto se usara la jerarquia siguiente: 
 
 Proyecto:
+
     project/
         common/
             files-used-in-common-modules.ext
