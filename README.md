@@ -5,6 +5,7 @@ Aqui se estara trabajando el proceso de desarrollo de esta aplicacion, cada actu
 Al ser un proyecto de python que secuencialmente va a ir necesitando nuevos modulos y maneras de documentarlos se designara el patron de desarrollo siguiente:
 - Para el proyecto con notebooks se usara el patron << [sugerido aqui](https://stackoverflow.com/a/38192558)>>
 - Para la estructura del proyecto se usara la jerarquia siguiente: 
+
     project/
         common/
             files-used-in-common-modules.ext
