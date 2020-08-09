@@ -6,6 +6,7 @@ Al ser un proyecto de python que secuencialmente va a ir necesitando nuevos modu
 - Para el proyecto con notebooks se usara el patron << [sugerido aqui](https://stackoverflow.com/a/38192558)>>
 - Para la estructura del proyecto se usara la jerarquia siguiente: 
 
+Proyecto:
     project/
         common/
             files-used-in-common-modules.ext
