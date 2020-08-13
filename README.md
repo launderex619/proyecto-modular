@@ -42,3 +42,6 @@ Desarrollar un sistema computacional de visión artificial que analice un video 
 
 ### Modulos:
 ![Requerimientos](docs/Stage1.svg?raw=true "Diagrama de modulos")
+
+### Diagrama de clases (prototipo):
+![Clases](docs/classMockDiagramStage1.svg?raw=true "Diagrama de modulos")
