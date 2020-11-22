@@ -1,0 +1,2 @@
+1 Obtain all keiponts and descriptors for frames
+2 Match them using bruteforce matcher/FLANN based Matcher is better but for now with bruteforce
