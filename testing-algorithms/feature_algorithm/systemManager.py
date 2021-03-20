@@ -10,7 +10,7 @@ from videoModel import VideoModel
 from analysisController import AnalysisController
 
 # constants
-VIDEO_PATH = './videos/video3.mp4'
+VIDEO_PATH = 'C:\\Users\\andre\\Documents\\Git\\proyecto-modular\\testing-algorithms\\feature_algorithm\\videos\\video2.mp4'
 VIDEO_WITDH_RESIZE = 960
 VIDEO_HEIGHT_RESIZE = 540
 KEY_ENTER = 13
@@ -82,6 +82,7 @@ def startSystem(videoModel, analysisController, mapController):
 
 if __name__ == "__main__":
     # 1- get video
+    print(VIDEO_PATH)
     videoModel = VideoModel(VIDEO_PATH)
     # 2- start image processing
     # we need the first frame to initializate all the system so:
