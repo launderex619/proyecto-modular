@@ -23,8 +23,10 @@ def init():
             tracker.create_keypoints()
             tracker.update_image_from_keypoints()
 
-            # creacion de los canvas para mostrar la imagen
-            gray = Helper.createImageFromKeypoints(gray, keypoints)
+            # Show image with keypoints
+            cv2.imshow('keypoints', tracker.last_frame.get('image'))
+
+            # mappper.map_with_new_keypoints()
 
             if cv.waitKey(25) & 0xFF == ord('q'):
                 break
