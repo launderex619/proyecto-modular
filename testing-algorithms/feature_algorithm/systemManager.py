@@ -29,7 +29,7 @@ def startSystem(videoModel, analysisController, mapController):
         frame = Helper.resizeImage(frame, VIDEO_WITDH_RESIZE, VIDEO_HEIGHT_RESIZE)
         gray = Helper.convertImageToGrayScale(frame)
         # obtencion de los keypoints y descriptors
-        keypoints, descriptors = analysisController.detectFeaturesAndDescriptors(gray)
+        keypoints, descriptors = analysisController.detect_features_and_descriptors(gray)
         # creacion de los canvas para mostrar la imagen
         blankCanvas = Helper.createBlankCanvas(VIDEO_WITDH_RESIZE, VIDEO_HEIGHT_RESIZE)
         blankCanvas = Helper.createImageFromKeypoints(blankCanvas, keypoints)

@@ -8,15 +8,15 @@ class Tracker:
     def __init__(self, image):
         self.orb = cv2.ORB_create(fastThreshold=config.FAST_THRESHOLD)
         self.BFMatcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
-        kp, desc = self.detectFeaturesAndDescriptors(image)
+        kp, desc = self.detect_features_and_descriptors(image)
         self.lastFrame = {
             'keypoints': kp,
             'descriptors': desc,
             'image': image
         }
 
-    def detectFeaturesAndDescriptors(self, image):
-        """Detects keipoints and computes the descriptors of given image
+    def detect_features_and_descriptors(self, image):
+        """Detects keypoints and computes the descriptors of given image
         Args:
             image (bgrImage): [description]
 
