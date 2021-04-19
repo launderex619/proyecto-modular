@@ -5,17 +5,32 @@ import config
 
 
 class Tracker:
-    def __init__(self, image):
+    def __init__(self):
+        self.image = None
+        self.last_frame = None
+
+        # TODO esto chance va en mapper
         self.orb = cv2.ORB_create(fastThreshold=config.FAST_THRESHOLD)
         self.BFMatcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
-        kp, desc = self.detect_features_and_descriptors(image)
-        self.lastFrame = {
-            'keypoints': kp,
-            'descriptors': desc,
-            'image': image
+
+    def set_image(self, image):
+        self.image = image
+
+    def replaceLastFrame(self, keypoints, descriptors):
+        # TODO Frame puede ser un objeto
+        self.last_frame = {
+            'keypoints': keypoints,
+            'descriptors': descriptors,
+            'image': self.image
         }
 
-    def detect_features_and_descriptors(self, image):
+    def getLastFrame(self):
+        return self.last_frame
+
+    def getLastFrameKeypoints(self):
+        return self.last_frame.get('keypoints')
+
+    def detect_features_and_descriptors(self):
         """Detects keypoints and computes the descriptors of given image
         Args:
             image (bgrImage): [description]
@@ -23,19 +38,21 @@ class Tracker:
         Returns:
            Keypoints, Descriptors: [description]
         """
-        return self.orb.detectAndCompute(image, None)
+        return self.orb.detectAndCompute(self.image, None)
 
-    def replaceLastFrame(self, keypoints, descriptors, image):
-        self.lastFrame = {
-            'keypoints': keypoints,
-            'descriptors': descriptors,
-            'image': image
-        }
+    def create_keypoints(self):
+        kp, esc = self.detect_features_and_descriptors()
+        self.replaceLastFrame(kp, esc)
+
+    def update_image_from_keypoints(self):
+        self.image = cv2.drawKeypoints(self.image, self.last_frame['kp'], None, color=(255, 0, 0))
+
+    # ===========
 
     def matchFeatures(self, descriptors):
         if descriptors is None or len(descriptors) < 2:
             return -1
-        matches = self.BFMatcher.knnMatch(self.lastFrame.get('descriptors'), descriptors, k=2)
+        matches = self.BFMatcher.knnMatch(self.last_frame.get('descriptors'), descriptors, k=2)
         # Apply ratio test
         goodMatches = []
         for m, n in matches:
@@ -43,16 +60,10 @@ class Tracker:
                 goodMatches.append([m])
         return goodMatches
 
-    def getLastFrame(self):
-        return self.lastFrame
-
-    def getLastFrameKeypoints(self):
-        return self.lastFrame.get('keypoints')
-
     def getPairPointArray(self, matches, keypoints):
         points = []
         for match in matches:
-            queryPoint = self.lastFrame.get('keypoints')[match[0].queryIdx].pt
+            queryPoint = self.last_frame.get('keypoints')[match[0].queryIdx].pt
             trainPoint = keypoints[match[0].trainIdx].pt
             distance = self.getEuclideanDistance(queryPoint, trainPoint)
             pair = {

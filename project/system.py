@@ -11,15 +11,17 @@ def init():
     """  """
     cap = cv.VideoCapture(0)  # initialize an object based on the webcam
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if ret:
-            gray = input_frame.process_image(frame)
-            tracker = tracking_module.Tracker(gray)
-            keypoints, descriptors = tracker.detect_features_and_descriptors(gray)
-            canvas = cvn_manager.createBlankCanvas(config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+    tracker = tracking_module.Tracker()
+    # mappper = ...
 
-            img_with_kp = tracker.createImageFromKeypoints(gray, keypoints)
+    while cap.isOpened():
+        ret, image = cap.read()
+        if ret:
+            gray_image = input_frame.process_image(image)
+
+            tracker.set_image(gray_image)
+            tracker.create_keypoints()
+            tracker.update_image_from_keypoints()
 
             # creacion de los canvas para mostrar la imagen
             gray = Helper.createImageFromKeypoints(gray, keypoints)
