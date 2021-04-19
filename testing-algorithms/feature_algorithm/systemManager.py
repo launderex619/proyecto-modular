@@ -1,13 +1,13 @@
-import time
-import cv2
 import sys
-import helper as Helper
-import numpy as np
+import time
+
+import cv2
 import matplotlib.pyplot as plt
 
+import helper as Helper
+from analysisController import AnalysisController
 from mapController import MapController
 from videoModel import VideoModel
-from analysisController import AnalysisController
 
 # constants
 VIDEO_PATH = 'C:\\Users\\andre\\Documents\\Git\\proyecto-modular\\testing-algorithms\\feature_algorithm\\videos\\video2.mp4'
@@ -35,7 +35,7 @@ def startSystem(videoModel, analysisController, mapController):
         blankCanvas = Helper.createImageFromKeypoints(blankCanvas, keypoints)
         gray = Helper.createImageFromKeypoints(gray, keypoints)
         # mostramos los keypoints
-        #-- Helper.showImage('Gris', gray)
+        # -- Helper.showImage('Gris', gray)
         Helper.showImage('Keypoints', blankCanvas)
         # creamos los matches entre los puntos
         lastFrame = analysisController.getLastFrame()
