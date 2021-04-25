@@ -14,9 +14,27 @@ class Tracker:
         self.BFMatcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
 
     def set_image(self, image):
+        """
+        Setter to add an image
+
+        Parameters
+        ----------
+        image: Array[3]
+            Image represented by 3 layers (R,G,B) created by openCV
+        """
         self.image = image
 
     def replaceLastFrame(self, keypoints, descriptors):
+        """
+        Setter to replace a given frame into the object
+
+        Parameters
+        ----------
+        keypoints: Array
+            ORB given keypoints
+        descriptors: Array
+            ORB given descriptors
+        """
         # TODO Frame puede ser un objeto
         self.last_frame = {
             'keypoints': keypoints,
@@ -25,26 +43,52 @@ class Tracker:
         }
 
     def getLastFrame(self):
+        """
+        Getter to retrieve the last frame
+
+        returns
+        ----------
+        last_frame: Dictionary
+            ORB given keypoints, descriptors and cv2 image
+        """
         return self.last_frame
 
     def getLastFrameKeypoints(self):
+        """
+        Getter to retrieve the last frame keypoints
+
+        returns
+        ----------
+        keypoints: Array
+            ORB given keypoints
+        """
         return self.last_frame.get('keypoints')
 
     def detect_features_and_descriptors(self):
-        """Detects keypoints and computes the descriptors of given image
-        Args:
-            image (bgrImage): [description]
+        """Detects keypoints and computes the descriptors of self.image
 
-        Returns:
-           Keypoints, Descriptors: [description]
+        Returns
+        ----------
+        Keypoints, Descriptors: Array
+            ORB given keypoints,
+            ORB given descriptors
         """
         return self.orb.detectAndCompute(self.image, None)
 
     def create_keypoints(self):
-        kp, esc = self.detect_features_and_descriptors()
-        self.replaceLastFrame(kp, esc)
+        """Detects keypoints and computes the descriptors of self.image and replaces last_frame to given information.
+
+        returns
+        ----------
+        last_frame: Dictionary
+            ORB given keypoints, descriptors and cv2 image
+        """
+        kp, desc = self.detect_features_and_descriptors()
+        self.replaceLastFrame(kp, desc)
 
     def update_image_from_keypoints(self):
+        """Update the image information to add the keypoints inside the image.
+        """
         self.image = cv2.drawKeypoints(self.image, self.last_frame['kp'], None, color=(255, 0, 0))
 
     # ===========
