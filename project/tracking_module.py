@@ -86,10 +86,10 @@ class Tracker:
         kp, desc = self.detect_features_and_descriptors()
         self.replaceLastFrame(kp, desc)
 
-    def update_image_from_keypoints(self):
+    def add_keypoints_into_image(self):
         """Update the image information to add the keypoints inside the image.
         """
-        self.image = cv2.drawKeypoints(self.image, self.last_frame['kp'], None, color=(255, 0, 0))
+        self.image = cv2.drawKeypoints(self.image, self.last_frame['keypoints'], None, color=(255, 0, 0))
 
     # ===========
 
