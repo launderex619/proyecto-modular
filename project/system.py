@@ -85,6 +85,10 @@ def init():
 
             # mappper.map_with_new_keypoints()
 
+            # creamos
+            tracker.set_image(gray_image)
+            tracker.replaceLastFrame(kp, dp)
+
             if cv.waitKey(25) & 0xFF == ord('q'):
                 break
         else:

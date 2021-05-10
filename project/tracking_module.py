@@ -64,6 +64,9 @@ class Tracker:
         """
         return self.last_frame.get('keypoints')
 
+    def getLastFrameDescriptors(self):
+        return self.last_frame.get('descriptors')
+
     def detect_features_and_descriptors(self, image):
         """Detects keypoints and computes the descriptors of self.image
 
@@ -83,8 +86,9 @@ class Tracker:
         last_frame: Dictionary
             ORB given keypoints, descriptors and cv2 image
         """
-        kp, desc = self.detect_features_and_descriptors()
+        kp, desc = self.detect_features_and_descriptors(self.image)
         self.replaceLastFrame(kp, desc)
+
 
     def add_keypoints_into_image(self):
         """Update the image information to add the keypoints inside the image.
