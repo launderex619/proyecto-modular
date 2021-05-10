@@ -48,7 +48,7 @@ def init():
         "└───┴──┴┴──┘░└───┴──┘└─┴──┘░└┘└┘└┴──┴──┴┴┘└┴┘└┘░└───┴┘└┴─┘└┘└┘└┴┘└┘\n",
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
-    video_path = '../common/video/test-point-follow.mp4'
+    video_path = '../common/video/cards.mp4'
     cap = cv.VideoCapture(video_path)  # initialize an object based on the webcam
 
     tracker = tracking_module.Tracker()
@@ -68,14 +68,16 @@ def init():
 
             kp, dp = tracker.detect_features_and_descriptors(gray_image)
             matches = tracker.matchFeatures(dp)
-            img = canvas_manager.create_image_of_matches(tracker.image, tracker.getLastFrameKeypoints(), gray_image, kp, matches)
-            # tracker.add_keypoints_into_image()
+            if (matches == -1):
+                continue
 
-            # image_copy = array(tracker.image)
+            image_copy = array(tracker.image)
+            for i, keypoint in enumerate(tracker.getLastFrameKeypoints()):
+                canvas_manager.draw_identifier_keypoint(str(i), image_copy, keypoint.pt, (10.0, 10.0))
+            img = canvas_manager.create_image_of_matches(image_copy, tracker.getLastFrameKeypoints(), gray_image, kp, matches)
+
             # TODO: Necesitamos agrupar los keypoints que esten super cercanos unos de otros para tomarlos como el mismo elemento
 
-            # for i, keypoint in enumerate(tracker.getLastFrameKeypoints()):
-            #     canvas_manager.draw_identifier_keypoint(str(i), image_copy, keypoint.pt, (10.0, 10.0))
             cv.imshow("matches", img)
 
 
