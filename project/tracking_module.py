@@ -64,7 +64,7 @@ class Tracker:
         """
         return self.last_frame.get('keypoints')
 
-    def detect_features_and_descriptors(self):
+    def detect_features_and_descriptors(self, image):
         """Detects keypoints and computes the descriptors of self.image
 
         Returns
@@ -73,7 +73,7 @@ class Tracker:
             ORB given keypoints,
             ORB given descriptors
         """
-        return self.orb.detectAndCompute(self.image, None)
+        return self.orb.detectAndCompute(image, None)
 
     def create_keypoints(self):
         """Detects keypoints and computes the descriptors of self.image and replaces last_frame to given information.

@@ -19,3 +19,13 @@ def draw_identifier_keypoint(tag, img, center_pixel, size):
     size = (int(size[0]), int(size[1]))
     cv2.rectangle(img, tuple(map(operator.sub, center_pixel, size)), tuple(map(operator.add, center_pixel, size)), green_color, 2)
     cv2.putText(img, tag, tuple(map(operator.sub, center_pixel, size)), cv2.FONT_ITALIC, .5, black_color)
+
+def create_image_of_matches(lastFrameImage, keypontsLastFrame, actualFrameImage, keypointsActualFrame, matches):
+    # cv.drawMatchesKnn expects list of lists as matches.
+    return cv2.drawMatchesKnn(lastFrameImage,
+                              keypontsLastFrame,
+                              actualFrameImage,
+                              keypointsActualFrame,
+                              matches,
+                              None,
+                              flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
