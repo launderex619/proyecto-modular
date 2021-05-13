@@ -105,7 +105,7 @@ class Tracker:
         goodMatches = []
         for m, n in matches:
             if m.distance < 0.75 * n.distance:
-                goodMatches.append([m])
+                goodMatches.aqppend([m])
         return goodMatches
 
     def getPairPointArray(self, matches, keypoints):

@@ -79,6 +79,7 @@ def init():
             # TODO: Necesitamos agrupar los keypoints que esten super cercanos unos de otros para tomarlos como el mismo elemento
 
             cv.imshow("matches", img)
+            cv.imshow("imagen", image_copy)
 
 
             # Show image with keypoints
