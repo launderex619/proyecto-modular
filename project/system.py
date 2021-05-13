@@ -48,7 +48,7 @@ def init():
         "└───┴──┴┴──┘░└───┴──┘└─┴──┘░└┘└┘└┴──┴──┴┴┘└┴┘└┘░└───┴┘└┴─┘└┘└┘└┴┘└┘\n",
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
-    video_path = '../common/video/cards.mp4'
+    video_path = '../common/video/libro_rotando.mp4'
     cap = cv.VideoCapture(video_path)  # initialize an object based on the webcam
 
     tracker = tracking_module.Tracker()
@@ -64,7 +64,11 @@ def init():
     while cap.isOpened():
         ret, image = cap.read()
         if ret:
+
+            # image = cv.GaussianBlur(image, (11, 11), 0)
             gray_image = input_frame.process_image(image)
+            gray_image  = cv.adaptiveThreshold(gray_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 5)
+
 
             kp, dp = tracker.detect_features_and_descriptors(gray_image)
             matches = tracker.matchFeatures(dp)
@@ -79,7 +83,8 @@ def init():
             # TODO: Necesitamos agrupar los keypoints que esten super cercanos unos de otros para tomarlos como el mismo elemento
 
             cv.imshow("matches", img)
-            cv.imshow("imagen", image_copy)
+            # cv.imshow("imagen", filtered_image)
+            # cv.imshow("blur", gray_image)
 
 
             # Show image with keypoints
