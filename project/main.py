@@ -1,4 +1,4 @@
-from project.processes import system
+from project import system
 
 if __name__ == "__main__":
     system.init()

@@ -104,7 +104,7 @@ class Tracker:
         # Apply ratio test
         goodMatches = []
         for m, n in matches:
-            if m.distance < 0.75 * n.distance:
+            if m.distance < 0.70 * n.distance:
                 goodMatches.append([m])
         return goodMatches
 
