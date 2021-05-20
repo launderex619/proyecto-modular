@@ -1,12 +1,8 @@
 import cv2 as cv
 from numpy import *
-from numpy import array
 
-import input_frame
-import tracking_module
-import utils.canvas_manager as cvn_manager
-
-import config
+from project.controllers.tracking_controller import Tracker
+from project.modules import input_frame_module
 from project.utils import canvas_manager
 
 
@@ -48,31 +44,31 @@ def init():
         "└───┴──┴┴──┘░└───┴──┘└─┴──┘░└┘└┘└┴──┴──┴┴┘└┴┘└┘░└───┴┘└┴─┘└┘└┘└┴┘└┘\n",
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
-    video_path = '../common/video/libro_rotando.mp4'
+    # TODO: Cambiar esto por una webcam juas juas
+    video_path = './../../common/video/cards.mp4'
     cap = cv.VideoCapture(video_path)  # initialize an object based on the webcam
 
-    tracker = tracking_module.Tracker()
-    # mappper = ...
+    tracker = Tracker()
     ret = True
     # obtener el primer frame
     while ret:
         ret, imagefirstframe = cap.read()
-        tracker.set_image(input_frame.process_image(imagefirstframe))
-        tracker.create_keypoints()
-        ret = not ret
+        if ret:
+            tracker.set_image(input_frame_module.process_image(imagefirstframe))
+            tracker.create_keypoints()
+            ret = not ret
 
     while cap.isOpened():
         ret, image = cap.read()
         if ret:
 
             # image = cv.GaussianBlur(image, (11, 11), 0)
-            gray_image = input_frame.process_image(image)
-            gray_image  = cv.adaptiveThreshold(gray_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 5)
-
+            gray_image = input_frame_module.process_image(image)
+            gray_image = cv.adaptiveThreshold(gray_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 5)
 
             kp, dp = tracker.detect_features_and_descriptors(gray_image)
             matches = tracker.matchFeatures(dp)
-            if (matches == -1):
+            if matches == -1:
                 continue
 
             image_copy = array(tracker.image)

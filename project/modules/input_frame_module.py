@@ -1,6 +1,6 @@
 import cv2
 
-import config
+from project import config
 
 
 def process_image(frame):

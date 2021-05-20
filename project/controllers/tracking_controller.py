@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-import config
+from project import config
 
 
 class Tracker:
