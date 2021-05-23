@@ -65,9 +65,10 @@ def filter_frame(image: [object]) -> [object]:
     :param image: image[int][int]
     :return: image[int][int]
     '''
-    image = cv2.GaussianBlur(image, (11, 11), 0)
-    gray_image = process_image(image)
-    return cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 5)
+    # image = cv2.GaussianBlur(image, (11, 11), 0)
+    image = process_image(image)
+    # image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 5)
+    return image
 
 
 def draw_identifier_keypoint(tag, img, center_pixel, size):

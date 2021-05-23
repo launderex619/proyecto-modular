@@ -46,7 +46,7 @@ def init():
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
     # TODO: Cambiar esto por una webcam juas juas
-    _video_path = 'assets/video/cards.mp4'
+    _video_path = 'assets/video/test-city.mp4'
     # PATH = os.path.dirname(os.path.abspath(__file__))
     _cap = cv.VideoCapture(_video_path)  # initialize an object based on the webcam
 
@@ -93,7 +93,7 @@ def init():
                 if taggg is not None:
                     taggg = taggg.tag
                 else:
-                    taggg = point.frame_number
+                    taggg = str(point.frame_number)
                 image_module.draw_identifier_keypoint(
                     taggg,
                     image_with_labeled_keypoints,
