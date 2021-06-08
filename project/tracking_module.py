@@ -97,16 +97,37 @@ class Tracker:
 
     # ===========
 
-    def matchFeatures(self, descriptors):
-        if descriptors is None or len(descriptors) < 2:
+    def matchFeatures(self, keypoints, descriptors):
+        last_kps, actual_kps = self.last_frame.get('keypoints'), keypoints
+        last_dps, actual_dps = self.last_frame.get('descriptors'), descriptors
+
+        idx_set1, idx_set2 = set(), set()
+        idx_dp_last_frame, idx_dp_actual_frame = [], []
+
+        if actual_dps is None or len(actual_dps) < 2:
             return -1
-        matches = self.BFMatcher.knnMatch(self.last_frame.get('descriptors'), descriptors, k=2)
+        matches = self.BFMatcher.knnMatch(last_dps, actual_dps, k=2)
+
         # Apply ratio test
         goodMatches = []
         for m, n in matches:
             if m.distance < 0.75 * n.distance:
-                goodMatches.append([m])
-        return goodMatches
+                p1 = last_kps[m.queryIdx]
+                p2 = actual_kps[m.trainIdx]
+
+                if m.distance < 32:
+                    if m.queryIdx not in idx_set1 and m.trainIdx not in idx_set2:
+                        idx_dp_last_frame.append(m.queryIdx)
+                        idx_set1.add(m.queryIdx)
+                        idx_dp_actual_frame.append(m.trainIdx)
+                        idx_set2.add(m.trainIdx)
+                        goodMatches.append((p1, p2))
+        goodMatches = np.array(goodMatches)
+        idx_dp_last_frame = np.array(idx_dp_last_frame)
+        idx_dp_actual_frame = np.array(idx_dp_actual_frame)
+
+        return goodMatches, idx_dp_last_frame, idx_dp_actual_frame
+
 
     def getPairPointArray(self, matches, keypoints):
         points = []

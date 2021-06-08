@@ -48,8 +48,8 @@ def init():
         "└───┴──┴┴──┘░└───┴──┘└─┴──┘░└┘└┘└┴──┴──┴┴┘└┴┘└┘░└───┴┘└┴─┘└┘└┘└┴┘└┘\n",
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
-    video_path = '../common/video/libro_rotando.mp4'
-    cap = cv.VideoCapture(video_path)  # initialize an object based on the webcam
+    video_path = '../common/video/chessboard.mp4'
+    cap = cv.VideoCapture(video_path)  # initialize an object based on a video
 
     tracker = tracking_module.Tracker()
     # mappper = ...
@@ -65,35 +65,29 @@ def init():
         ret, image = cap.read()
         if ret:
 
-            # image = cv.GaussianBlur(image, (11, 11), 0)
+            # obtenemos el frame actual en gris
             gray_image = input_frame.process_image(image)
-            gray_image  = cv.adaptiveThreshold(gray_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 5)
 
-
+            # sacamos kps y dps del frame gris
             kp, dp = tracker.detect_features_and_descriptors(gray_image)
-            matches = tracker.matchFeatures(dp)
-            if (matches == -1):
-                continue
 
-            image_copy = array(tracker.image)
-            for i, keypoint in enumerate(tracker.getLastFrameKeypoints()):
-                canvas_manager.draw_identifier_keypoint(str(i), image_copy, keypoint.pt, (10.0, 10.0))
-            img = canvas_manager.create_image_of_matches(image_copy, tracker.getLastFrameKeypoints(), gray_image, kp, matches)
+            # sacamos matches chidos y los índices de los descriptores de cada frame
+            # matches, idx1, idx2 = tracker.matchFeatures(kp, dp)
 
-            # TODO: Necesitamos agrupar los keypoints que esten super cercanos unos de otros para tomarlos como el mismo elemento
+            # proj_points_1 = np.array([
+            #     np.array([kpt.pt[0] for kpt in matches[:, 0]]),
+            #     np.array([kpt.pt[1] for kpt in matches[:, 0]])
+            # ])
+            #
+            # proj_points_2 = np.array([
+            #     np.array([kpt.pt[0] for kpt in matches[:, 1]]),
+            #     np.array([kpt.pt[1] for kpt in matches[:, 1]])
+            # ])
+            #
+            # proc_img = cv.drawKeypoints(gray_image, kp, None, color=(255, 0, 0))
 
-            cv.imshow("matches", img)
-            # cv.imshow("imagen", filtered_image)
-            # cv.imshow("blur", gray_image)
+            cv.imshow("gray", gray_image)
 
-
-            # Show image with keypoints
-            # cv.imshow('keypoints', tracker.last_frame.get('image'))
-            # cv.imshow('keypoints', tracker.image)
-
-            # mappper.map_with_new_keypoints()
-
-            # creamos
             tracker.set_image(gray_image)
             tracker.replaceLastFrame(kp, dp)
 
