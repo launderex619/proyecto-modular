@@ -10,7 +10,7 @@ class Tracker:
         self.last_frame = None
 
         # TODO esto chance va en mapper
-        self.orb = cv2.ORB_create(nlevels=8, firstLevel=1, edgeThreshold=1, nfeatures=10, fastThreshold=config.FAST_THRESHOLD)
+        self.orb = cv2.ORB_create(nlevels=8, firstLevel=1, edgeThreshold=1, nfeatures=20, fastThreshold=config.FAST_THRESHOLD)
         self.BFMatcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
 
     def set_image(self, image):

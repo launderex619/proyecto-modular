@@ -3,6 +3,7 @@ from numpy import *
 
 from project.controllers import tracking_controller
 from project.controllers import landmark_controller
+from project.controllers.calibration_controller import CalibrationController
 from project.modules import image_module
 from project.utils import canvas_manager
 
@@ -46,7 +47,11 @@ def init():
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
     # TODO: Cambiar esto por una webcam juas juas
-    _video_path = 'assets/video/test-city.mp4'
+    _video_path = 'assets/video/calibracion.mp4'
+
+    # Controlador de calibracion
+    calibrationController = CalibrationController()
+    calibrationController.calibrate()
     # PATH = os.path.dirname(os.path.abspath(__file__))
     _cap = cv.VideoCapture(_video_path)  # initialize an object based on the webcam
 
