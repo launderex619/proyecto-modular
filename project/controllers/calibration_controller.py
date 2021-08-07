@@ -17,6 +17,7 @@ class CalibrationController:
         # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
         objp = np.zeros((6 * 9, 3), np.float32)
         objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+        axis = np.float32([[3, 0, 0], [0, 3, 0], [0, 0, -3]]).reshape(-1, 3)
         # Arrays to store object points and image points from all the images.
         objpoints = []  # 3d point in real world space
         imgpoints = []  # 2d points in image plane.
@@ -49,6 +50,15 @@ class CalibrationController:
 
                     ref, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
                         objpoints, imgpoints, gray.shape[::-1], None, None)
+
+                    if ref:
+                        corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                        # Find the rotation and translation vectors.
+                        ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
+                        # project 3D points to image plane
+                        imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
+
+
 
             if cv.waitKey(25) & 0xFF == ord('q'):
                 break
