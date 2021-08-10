@@ -10,6 +10,13 @@ class CalibrationController:
         self.object_points = (0, 0, 0)
         self._video_path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
 
+    def draw(self, img, corners, imgpts):
+        corner = tuple(corners[0].ravel())
+        img = cv.line(img, corner, tuple(imgpts[0].ravel()), (255, 0, 0), 5)
+        img = cv.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
+        img = cv.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
+        return img
+
     def calibrate(self):
         # termination criteria
         criteria = (cv.TERM_CRITERIA_EPS +
@@ -39,10 +46,10 @@ class CalibrationController:
                 ref, corners = cv.findChessboardCorners(gray, (9, 6), None)
                 if ref:
                     # If found, add object points, image points (after refining them)
-                    objpoints.append(objp)
+                    objpoints = [objp]
                     corners2 = cv.cornerSubPix(
                         gray, corners, (11, 11), (-1, -1), criteria)
-                    imgpoints.append(corners)
+                    imgpoints = [corners]
                     # Draw and display the corners
                     cv.drawChessboardCorners(img, (9, 6), corners2, ref)
                     cv.imshow('img', img)
@@ -57,7 +64,8 @@ class CalibrationController:
                         ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
                         # project 3D points to image plane
                         imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
-
+                        img = self.draw(img, corners2, imgpts)
+                        cv.imshow('img', img)
 
 
             if cv.waitKey(25) & 0xFF == ord('q'):
