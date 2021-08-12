@@ -121,6 +121,29 @@ def init():
             _tracker_controller.set_image(gray_image)
             _tracker_controller.replaceLastFrame(kp, dp)
 
+            # ======= PNP, ProjectPoints & Triangulate ======= 
+            #@ objp      => vector 3x, (x, y, z)  {son los matches pero con una tercera dimesion z (23.10, 90.73, z?)} antes z era 0
+            #@ corners2  => kp, (ver si son (x,y))
+            #@ mtx       => se obtiene en la calibracion, 
+            #@ dist => se obtine en la calibracion
+
+            # ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist) 
+
+            #@ axis => object points (3d coordinates) cada keypoint que haya tenido match con el fram anterior (recorrer lista de los matches y hacer su proyeccoiob)
+            #@ rvecs => viene de pnp
+            #@ tvecs => viene de pnp
+            #@ mtx => viene de la calibracion
+            #@ dist => viene de la calibracion 
+            
+            # imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
+
+            #? matrizProyecion1 => de donde se saca??
+            #? matrizProyecion2 =>
+            #@ proj_points_1 => los sacamode de cv.projectpoints (frame anterior)
+            #@ proj_points_2 => los sacamode de cv.projectpoints
+            
+            # points_in_3d = cv2.triangulatePoints(matrizProyecion1, matrizProyecion2, proj_points_1, proj_points_2)
+
             frame_counter += 1
             if cv.waitKey(25) & 0xFF == ord('q'):
                 break

@@ -55,17 +55,23 @@ class CalibrationController:
                     cv.imshow('img', img)
                     # cv.waitKey(500)
 
+                    # TODO Hay que regresar la matriz de la camara para que se use en el System.py
+                    # TODO return rvecs and tvecs or make them properties
                     ref, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
                         objpoints, imgpoints, gray.shape[::-1], None, None)
 
                     if ref:
-                        corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-                        # Find the rotation and translation vectors.
-                        ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
-                        # project 3D points to image plane
-                        imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
-                        img = self.draw(img, corners2, imgpts)
-                        cv.imshow('img', img)
+                        print("calibration succed")
+
+                        # corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                        # # Find the rotation and translation vectors.
+                        # ret, rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
+                        # # project 3D points to image plane
+                        # imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
+                        # # img = self.draw(img, corners2, imgpts)
+                        # # cv.imshow('img', img)
+
+                        # points_in_3d = cv2.triangulatePoints(IRt, Rt, proj_points_1, proj_points_2)
 
 
             if cv.waitKey(25) & 0xFF == ord('q'):
