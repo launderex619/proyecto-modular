@@ -8,7 +8,7 @@ import glob
 class CalibrationController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._video_path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
+        self._video_path = '/Users/lumedina/Documents/Uni/proyecto-modular/project/assets/video/calibracion.mp4'
 
     def draw(self, img, corners, imgpts):
         corner = tuple(corners[0].ravel())
@@ -57,7 +57,7 @@ class CalibrationController:
 
                     # TODO Hay que regresar la matriz de la camara para que se use en el System.py
                     # TODO return rvecs and tvecs or make them properties
-                    ref, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+                    ref, self.mtx, self.dist, rvecs, tvecs = cv.calibrateCamera(
                         objpoints, imgpoints, gray.shape[::-1], None, None)
 
                     if ref:
@@ -73,6 +73,7 @@ class CalibrationController:
 
                         # points_in_3d = cv2.triangulatePoints(IRt, Rt, proj_points_1, proj_points_2)
 
+                    break
 
             if cv.waitKey(25) & 0xFF == ord('q'):
                 break
