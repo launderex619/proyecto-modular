@@ -8,7 +8,9 @@ import glob
 class CalibrationController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._video_path = '/Users/lumedina/Documents/Uni/proyecto-modular/project/assets/video/calibracion.mp4'
+        self._video_path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
+        self.mtx = None
+        self.dist = None
 
     def draw(self, img, corners, imgpts):
         corner = tuple(corners[0].ravel())
