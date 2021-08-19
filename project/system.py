@@ -1,5 +1,7 @@
 import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from project.controllers import tracking_controller
 from project.controllers import landmark_controller
@@ -78,6 +80,7 @@ def init():
         gray_image = image_module.filter_frame(image)
 
         # Obtenemos keypoints y descriptores
+        _tracker_controller.set_image(gray_image)
         kp_actual, dp = _tracker_controller.detect_features_and_descriptors(gray_image)
         # Obtenemos los matches en base a los descriptores
         matches = _tracker_controller.matchFeatures(dp)
@@ -188,6 +191,13 @@ def init():
                                       np.array([kp.pt[1] for kp in _tracker_controller.getLastFrameKeypoints()])])
 
             points_in_3d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, ant_, act_)
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(points_in_3d[1], points_in_3d[0], points_in_3d[2])
+            plt.xlim([0,1])
+            plt.ylim([0,1])
+            plt.show()
 
         frame_counter += 1
         if cv.waitKey(25) & 0xFF == ord('q'):
