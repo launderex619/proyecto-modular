@@ -5,7 +5,9 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from project.controllers import tracking_controller
 from project.controllers import landmark_controller
+from project.controllers import testing_controller
 from project.controllers.calibration_controller import CalibrationController
+from project.controllers.testing_controller import TestingController
 from project.modules import image_module
 from project.utils import canvas_manager
 
@@ -54,6 +56,10 @@ def init():
     # Controlador de calibracion
     calibrationController = CalibrationController()
     calibrationController.calibrate()
+
+    testingController = TestingController()
+    testing_controller.calibrate()
+    
     # PATH = os.path.dirname(os.path.abspath(__file__))
     _cap = cv.VideoCapture(_video_path)  # initialize an object based on the webcam
 
