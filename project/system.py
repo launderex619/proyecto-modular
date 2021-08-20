@@ -194,7 +194,7 @@ def init():
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(points_in_3d[1], points_in_3d[0], points_in_3d[2])
+            ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
             plt.xlim([0,1])
             plt.ylim([0,1])
             plt.show()
