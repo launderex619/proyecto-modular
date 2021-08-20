@@ -57,7 +57,7 @@ def init():
     calibrationController = CalibrationController()
     calibrationController.calibrate()
 
-    testingController = TestingController()
+    testing_controller = TestingController()
     testing_controller.calibrate()
     
     # PATH = os.path.dirname(os.path.abspath(__file__))
