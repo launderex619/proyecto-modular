@@ -51,7 +51,8 @@ def init():
         "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
     )
     # TODO: Cambiar esto por una webcam juas juas
-    _video_path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
+    _local_path = '/Users/lumedina/Documents/Uni'
+    _video_path = f'{_local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
 
     # Controlador de calibracion
     calibrationController = CalibrationController()
@@ -124,7 +125,7 @@ def init():
         # cv.imshow("blur", gray_image)
 
         # Show image with keypoints
-        # cv.imshow('keypoints', _tracker_controller.last_frame.get('image'))
+        
         # cv.imshow('keypoints', _tracker_controller.image)
 
         # mappper.map_with_new_keypoints()

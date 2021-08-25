@@ -12,7 +12,8 @@ import glob
 class TestingController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
+        self._local_path = '/Users/lumedina/Documents/Uni/'
+        self._path = f'{self._local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
         self.dist = None
 
@@ -37,7 +38,8 @@ class TestingController:
         # initialize an object based on the webcam
 
         for i in range(1,3):
-            img = cv.imread(f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
+            _local_path = '/Users/lumedina/Documents/Uni/'
+            img = cv.imread(f"{_local_path}/proyecto-modular/project/assets/photos/photo{i}.jpg")
             gray = image_module.process_image(img)
 
             img = image_module.resize_image(img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
@@ -60,19 +62,22 @@ class TestingController:
                 # TODO return rvecs and tvecs or make them properties
                 ref, self.mtx, self.dist, rvecs, tvecs = cv.calibrateCamera(objpoints[i-1], imgpoints[i-1], gray.shape[::-1], None, None)
 
-        print(objpoints)
-        print(imgpoints)
+        # print(objpoints)
+        # print(imgpoints)
 
-        _tracker_controller = tracking_controller.Tracker()
-        kp_actual = [[],[]]
+        # _tracker_controller = tracking_controller.Tracker()
+        # kp_actual = [[],[]]
 
-        for i in range(1,3):
-            img = cv.imread(f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
-            gray_image = image_module.process_image(img)
+        # for i in range(1,3):
+        #     img = cv.imread(f"/Users/lumedina/Documents/Uni/proyecto-modular/project/assets/photos/photo{i}.jpg")
+        #     gray_image = image_module.process_image(img)
 
-            _tracker_controller.set_image(gray_image)
+        #     _tracker_controller.set_image(gray_image)
 
-            kp_actual[i-1], dp = _tracker_controller.detect_features_and_descriptors(gray_image)
+        #     kp_actual[i-1], dp = _tracker_controller.detect_features_and_descriptors(gray_image)
+        
+        #     cv.imshow('keypoints', cv.drawKeypoints(gray_image, kp_actual[i-1], gray_image))
+        #     cv.waitKey(25)
 
         objp_anterior = []
         objp_actual = []
@@ -82,7 +87,7 @@ class TestingController:
 
         for p in kp_actual[0]:
             objp_anterior = np.append([objp_anterior], [[p.pt[0], p.pt[1], 0]]).reshape(-1, 3)
-
+        
         keypoints_frame_anterior = np.array([[kp.pt[0], kp.pt[1]] for kp in kp_actual[0]])
         keypoints_frame_actual = np.array([[kp.pt[0], kp.pt[1]] for kp in kp_actual[1]])
 
@@ -132,6 +137,6 @@ class TestingController:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
-            plt.xlim([0, 1])
-            plt.ylim([0, 1])
+            # plt.xlim([0, 1])
+            # plt.ylim([0, 1])
             plt.show()
