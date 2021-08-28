@@ -12,8 +12,7 @@ import glob
 class TestingController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._local_path = '/Users/lumedina/Documents/Uni/'
-        self._path = f'{self._local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
+        self._path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
         self.dist = None
 
@@ -36,10 +35,10 @@ class TestingController:
         objpoints = [[],[]]  # 3d point in real world space
         imgpoints = [[],[]]  # 2d points in image plane.
         # initialize an object based on the webcam
+        kp_actual = [[],[]]
 
         for i in range(1,3):
-            _local_path = '/Users/lumedina/Documents/Uni/'
-            img = cv.imread(f"{_local_path}/proyecto-modular/project/assets/photos/photo{i}.jpg")
+            img = cv.imread(f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
             gray = image_module.process_image(img)
 
             img = image_module.resize_image(img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
@@ -53,6 +52,15 @@ class TestingController:
                 corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
                 imgpoints[i-1] = [corners]
 
+                kp_actual[i-1] = [None] * 54
+                idx = 0
+                for ele in corners2:
+                    pt = ele[0]
+                    dic = {'pt': pt}
+                    kp_actual[i-1][idx] = dic
+                    idx += 1
+
+
                 # Draw and display the corners
                 cv.drawChessboardCorners(img, (9, 6), corners2, ref)
                 cv.imshow(f'img{i}', img)
@@ -65,31 +73,27 @@ class TestingController:
         # print(objpoints)
         # print(imgpoints)
 
-        # _tracker_controller = tracking_controller.Tracker()
-        # kp_actual = [[],[]]
+        _tracker_controller = tracking_controller.Tracker()
 
         # for i in range(1,3):
-        #     img = cv.imread(f"/Users/lumedina/Documents/Uni/proyecto-modular/project/assets/photos/photo{i}.jpg")
+        #     img = cv.imread(f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
         #     gray_image = image_module.process_image(img)
-
+        #
         #     _tracker_controller.set_image(gray_image)
-
+        #
         #     kp_actual[i-1], dp = _tracker_controller.detect_features_and_descriptors(gray_image)
-        
-        #     cv.imshow('keypoints', cv.drawKeypoints(gray_image, kp_actual[i-1], gray_image))
-        #     cv.waitKey(25)
 
         objp_anterior = []
         objp_actual = []
 
         for p in kp_actual[1]:
-            objp_actual = np.append([objp_actual], [p.pt[0], p.pt[1], 0]).reshape(-1, 3)
+            objp_actual = np.append([objp_actual], [p['pt'][0], p['pt'][1], 0]).reshape(-1, 3)
 
         for p in kp_actual[0]:
-            objp_anterior = np.append([objp_anterior], [[p.pt[0], p.pt[1], 0]]).reshape(-1, 3)
-        
-        keypoints_frame_anterior = np.array([[kp.pt[0], kp.pt[1]] for kp in kp_actual[0]])
-        keypoints_frame_actual = np.array([[kp.pt[0], kp.pt[1]] for kp in kp_actual[1]])
+            objp_anterior = np.append([objp_anterior], [[p['pt'][0], p['pt'][1], 0]]).reshape(-1, 3)
+
+        keypoints_frame_anterior = np.array([[kp['pt'][0], kp['pt'][1]] for kp in kp_actual[0]])
+        keypoints_frame_actual = np.array([[kp['pt'][0], kp['pt'][1]] for kp in kp_actual[1]])
 
         if len(objp_anterior) > 0 and len(objp_actual) > 0:
             ret, rvecs_anterior, tvecs_anterior = cv.solvePnP(objp_anterior, keypoints_frame_anterior,self.mtx, self.dist)
@@ -126,11 +130,11 @@ class TestingController:
             matrizProyecion2[1][3] = tvecs_actual[1]
             matrizProyecion2[2][3] = tvecs_actual[2]
 
-            act_ = np.array([np.array([kp.pt[0] for kp in kp_actual[1]]),
-                             np.array([kp.pt[1] for kp in kp_actual[1]])])
+            act_ = np.array([np.array([kp['pt'][0] for kp in kp_actual[1]]),
+                             np.array([kp['pt'][1] for kp in kp_actual[1]])])
 
-            ant_ = np.array([np.array([kp.pt[0] for kp in kp_actual[0]]),
-                             np.array([kp.pt[1] for kp in kp_actual[0]])])
+            ant_ = np.array([np.array([kp['pt'][0] for kp in kp_actual[0]]),
+                             np.array([kp['pt'][1] for kp in kp_actual[0]])])
 
             points_in_3d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, ant_, act_)
 
