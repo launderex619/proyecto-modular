@@ -136,11 +136,12 @@ class TestingController:
             ant_ = np.array([np.array([kp['pt'][0] for kp in kp_actual[0]]),
                              np.array([kp['pt'][1] for kp in kp_actual[0]])])
 
-            points_in_3d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, ant_, act_)
+            points_in_4d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, ant_, act_)
+            points_in_3d = cv.convertPointsFromHomogeneous(points_in_4d.transpose())
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
+            ax.scatter([item[0][0] for item in points_in_3d], [item[0][1] for item in points_in_3d], [item[0][2] for item in points_in_3d])
             # plt.xlim([0, 1])
             # plt.ylim([0, 1])
             plt.show()

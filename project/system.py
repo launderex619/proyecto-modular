@@ -48,10 +48,10 @@ def init():
         "││░┌┤││├┤──┤░│┌─┐││─┤│││┌┐│░│││││││─┤┌┐├┤┌┐┤┌┐│░││┌─┤┌┐│││└┘│┌┐│┌┐┐\n",
         "│└─┘│└┘│├──│░│└─┘││─┤│└┤└┘│░│││││││─┤└┘│││││┌┐│░│└┴─│┌┐│└┼┐┌┤┌┐││││\n",
         "└───┴──┴┴──┘░└───┴──┘└─┴──┘░└┘└┘└┴──┴──┴┴┘└┴┘└┘░└───┴┘└┴─┘└┘└┘└┴┘└┘\n",
-        "░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n",
+        "░░░░░░░░░░░░░░░░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░\n",
     )
     # TODO: Cambiar esto por una webcam juas juas
-    _local_path = '/Users/lumedina/Documents/Uni'
+    _local_path = 'C:/Users/carlo/Documents/universidad/Modular/'
     _video_path = f'{_local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
 
     # Controlador de calibracion
