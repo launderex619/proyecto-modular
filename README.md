@@ -41,7 +41,7 @@ Proyecto:
 Desarrollar un sistema computacional de visión artificial que analice un video de un entorno con características controladas (fácilmente clasificables). Durante el video, aparecerán nuevas características debido a que la cámara está siguiendo una trayectoria , así mismo, desaparecerán las más antiguas. Si la trayectoria regresa a mostrar características que ya habían sido detectadas, el sistema deberá ser capaz de reconocerlas.
 
 ### Modulos:
-![Requerimientos](docs/Stage1.svg?raw=true "Diagrama de modulos")
+![Requerimientos](docs/assets/diagrams/Stage1.svg?raw=true "Diagrama de modulos")
 
 ### Diagrama de clases (prototipo):
-![Clases](docs/classMockDiagramStage1.svg?raw=true "Diagrama de modulos")
+![Clases](docs/assets/diagrams/classMockDiagramStage1.svg?raw=true "Diagrama de modulos")
