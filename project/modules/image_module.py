@@ -1,8 +1,9 @@
 import operator
+from typing import List
 
 import cv2
 
-from project import config
+from core import config
 
 
 def process_image(frame):
@@ -18,7 +19,8 @@ def process_image(frame):
     Image: Array[][]
         Grayscale resized image.
     """
-    frame = resize_image(frame, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+    frame = resize_image(frame, config.VIDEO_WITDH_RESIZE,
+                         config.VIDEO_HEIGHT_RESIZE)
     gray = convert_image_to_gray_scale(frame)
     return gray
 
@@ -59,7 +61,7 @@ def convert_image_to_gray_scale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
-def filter_frame(image: [object]) -> [object]:
+def filter_frame(image: List[object]) -> List[object]:
     '''
     Este metodo aplica un filtro gaussiano difuminado y un filtro gaussiano adaptativo
     :param image: image[int][int]
@@ -83,7 +85,8 @@ def draw_identifier_keypoint(tag, img, center_pixel, size):
         black_color,
         2)
     cv2.circle(img, center_pixel, 1, green_color, 1)
-    cv2.putText(img, tag, tuple(map(operator.sub, center_pixel, size)), cv2.FONT_ITALIC, .5, black_color)
+    cv2.putText(img, tag, tuple(map(operator.sub, center_pixel, size)),
+                cv2.FONT_ITALIC, .5, black_color)
 
 
 def create_image_of_matches(lastFrameImage, keypontsLastFrame, actualFrameImage, keypointsActualFrame, matches):

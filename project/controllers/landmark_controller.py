@@ -1,11 +1,12 @@
-from project.entities.landmark_entity import LandmarkEntity
-from project.entities.point_3d_entity import Point3DEntity
+from typing import List
+from entities.landmark_entity import LandmarkEntity
+from entities.point_3d_entity import Point3DEntity
 
 
 class LandmarkController:
 
     def __init__(self):
-        self.landmarks: [LandmarkEntity] = []
+        self.landmarks: List[LandmarkEntity] = []
         self.lastTag = 0
 
     def update_landmark_position(self, landmark: LandmarkEntity, point: Point3DEntity):
@@ -47,7 +48,7 @@ class LandmarkController:
         '''
         self.landmarks.append(landmark)
 
-    def update_landmarks(self, frame_counter: int, matches: [object], last_frame_keypoints: [object], keypoints: [object]):
+    def update_landmarks(self, frame_counter: int, matches: List[object], last_frame_keypoints: List[object], keypoints: List[object]):
         '''
         Actualiza las posiciones de los landmarks encontrados
         :param frame_counter: int
@@ -89,7 +90,7 @@ class LandmarkController:
                 self.landmarks.append(landmark)
                 self.lastTag += 1
 
-    def get_points_by_frame(self, frame) -> [Point3DEntity]:
+    def get_points_by_frame(self, frame) -> List[Point3DEntity]:
         points = []
         for landmark in self.landmarks:
             for point in landmark.points:
