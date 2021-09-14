@@ -134,9 +134,6 @@ def init():
         # )
         cv.imshow('keypoints', image_with_labeled_keypoints)
 
-        # creamos
-        _tracker_controller.replaceLastFrame(kp_actual, dp)
-
         # ======= PNP, ProjectPoints & Triangulate =======
         # @ objp      => vector 3x, (x, y, z)  {son los matches pero con una tercera dimesion z (23.10, 90.73, z?)} antes z era 0
         # @ corners2  => kp, (ver si son (x,y))
@@ -215,6 +212,8 @@ def init():
             plt.xlim([0, 1])
             plt.ylim([0, 1])
             plt.show()
+        # creamos
+        _tracker_controller.replaceLastFrame(kp_actual, dp)
 
         frame_counter += 1
         if cv.waitKey(25) & 0xFF == ord('q'):
