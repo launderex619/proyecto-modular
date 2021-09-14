@@ -1,11 +1,12 @@
-from project.entities.point_3d_entity import Point3DEntity
+from typing import List
+from entities.point_3d_entity import Point3DEntity
 
 
 class LandmarkEntity:
 
     def __init__(self, tag: str, points):
         self.tag: str = tag
-        self.points: [Point3DEntity] = points
+        self.points: List[Point3DEntity] = points
 
     @staticmethod
     def points_are_equal(point1: Point3DEntity, point2: Point3DEntity) -> bool:

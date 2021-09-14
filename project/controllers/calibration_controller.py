@@ -1,14 +1,14 @@
 import numpy as np
 import cv2 as cv
-from project.modules import image_module
-from project import config
+from modules import image_module
+from core import config
 import glob
 
 
 class CalibrationController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._local_path = '/Users/lumedina/Documents/Uni'
+        self._local_path = 'C:/Users/carlo/Documents/universidad/Modular'
         self._video_path = f'{self._local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
         self.dist = None

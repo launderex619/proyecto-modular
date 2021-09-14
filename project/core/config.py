@@ -1,7 +1,8 @@
 import os
 
 dirname = os.path.dirname(__file__)
-VIDEO_PATH = os.path.join(dirname, 'path al videp')
+VIDEO_PATH = os.path.join(dirname, 'path al video')
+PROJECT_PATH = 'C:/Users/carlo/Documents/universidad/Modular/'
 VIDEO_WITDH_RESIZE = 960
 VIDEO_HEIGHT_RESIZE = 540
 KEY_ENTER = 13
