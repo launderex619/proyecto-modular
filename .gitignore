@@ -76,3 +76,4 @@ common/
 *.pyc
 __pycache__/
 .vscode/
+*/__pycache__/*
