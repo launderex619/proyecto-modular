@@ -28,13 +28,19 @@ class TestingController:
         phi = m.pi/2
         theta = m.pi/4
         psi = m.pi/2
-        print("phi =", phi)
-        print("theta  =", theta)
-        print("psi =", psi)
+        # print("phi =", phi)
+        # print("theta  =", theta)
+        # print("psi =", psi)
         
         R = Rz(psi) * Ry(theta) * Rx(phi)
-        print(np.round(R, decimals=2))
+        # print(np.round(R, decimals=2))
         return R
+
+    def translate(self, x0, y0, z0, x1, y1, z1):
+        difx = x1 - x0  
+        dify = y1 - y0  
+        difz = z1 - z0  
+        return np.array([x0 + difx, y0 + dify, z0 + difz])
 
     def run(self):      
         kps_act = obtenerKeypoints(1)
@@ -51,17 +57,17 @@ class TestingController:
         matrizProyecion1 = None
         matrizProyecion2 = None
 
+        # Angulos del dron euler
+        R = self.rotate(0, 0, 0)
+        # posiciones GPS (x, y, z) del dron
+        T = self.translate(0, 0, 0, 10, 0, 0)
 
-        """
-        Since you already have the matched points form the image you can use findFundamentalMat() 
-            to get the fundamental matrix. Keep in mind you need at least 7 matched points to do this. 
-            If you have more then 8 points CV_FM_RANSAC might be the best option.
+        proj_points_1 = np.array([np.array([kp[0] for kp in kp_xy_ant]),
+                                  np.array([kp[1] for kp in kp_xy_ant])])
 
-        Then use cv::sfm::projectionsFromFundamental() to find the projection matrix for each image, 
-            check if the projection matrix is valid (ex.check if the points are in-front of the camera).
+        proj_points_2 = np.array([np.array([kp[0] for kp in kp_xy_act]),
+                                  np.array([kp[1] for kp in kp_xy_act])])
 
-        then feed the projections and the points it into cv::sfm::triangulatePoints().
-        """
 
         points_in_4d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, kp_xy_ant, kp_xy_act)
         points_in_3d = cv.convertPointsFromHomogeneous(points_in_4d.transpose())
