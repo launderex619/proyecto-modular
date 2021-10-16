@@ -62,12 +62,8 @@ class TestingController:
         # posiciones GPS (x, y, z) del dron
         T = self.translate(0, 0, 0, 10, 0, 0)
 
-        proj_points_1 = np.array([np.array([kp[0] for kp in kp_xy_ant]),
-                                  np.array([kp[1] for kp in kp_xy_ant])])
-
-        proj_points_2 = np.array([np.array([kp[0] for kp in kp_xy_act]),
-                                  np.array([kp[1] for kp in kp_xy_act])])
-
+        # peojectionMtrx1 = 
+        # peojectionMtrx2 = 
 
         points_in_4d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, kp_xy_ant, kp_xy_act)
         points_in_3d = cv.convertPointsFromHomogeneous(points_in_4d.transpose())
