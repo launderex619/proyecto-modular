@@ -53,20 +53,21 @@ class TestingController:
         kp_xy_ant = np.array([np.array([kp[0][0] for kp in kps_ant]), 
                             np.array([kp[0][1] for kp in kps_ant])])    
 
-        # obtenemos las matrices (la mate)
-        matrizProyecion1 = None
-        matrizProyecion2 = None
-
         # Angulos del dron euler
-        R = self.rotate(0, 0, 0)
+        R1 = self.rotate(0, 0, 0)
         # posiciones GPS (x, y, z) del dron
-        T = self.translate(0, 0, 0, 10, 0, 0)
+        T1 = self.translate(0, 0, 0, 0, 0, 0)
 
-        # peojectionMtrx1 = 
-        # peojectionMtrx2 = 
+        R2 = self.rotate(0, 0, 0)
+        T2 = self.translate(0, 0, 0, 10, 0, 0)
 
-        points_in_4d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, kp_xy_ant, kp_xy_act)
+        peojection_mtx1 = np.array(np.concatenate(R1, T1)) 
+        peojection_mtx2 = np.array(np.concatenate(R2, T2))
+
+        points_in_4d = cv.triangulatePoints(peojection_mtx1, peojection_mtx2, kp_xy_ant, kp_xy_act)
         points_in_3d = cv.convertPointsFromHomogeneous(points_in_4d.transpose())
+
+        
 
         # fig = plt.figure()
         # ax = fig.add_subplot(111, projection='3d')
