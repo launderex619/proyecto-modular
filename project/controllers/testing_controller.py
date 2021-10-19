@@ -88,7 +88,12 @@ class TestingController:
             [R2[2,0],R2[2,1],R2[2,2],T2[2]]]
         )
 
-        # falta multiplicar por la intrinseca
+        # multiplicar por la intrinseca
+        # self.K = np.array([[7.18856e+02, 0.0, 6.071928e+02],
+        #                   [0.0, 7.18856e+02, 1.852157e+02],
+        #                   [0.0, 0.0, 1.0]])
+        # self.pp = np.array([self.K[0, 2], self.K[1, 2]])
+        # self.focal = self.K[0, 0]
 
         points_in_4d = cv.triangulatePoints(
             projection_mtx1, projection_mtx2, kp_xy_ant, kp_xy_act)
