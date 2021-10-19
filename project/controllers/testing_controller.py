@@ -4,7 +4,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from controllers import tracking_controller
+# from controllers import tracking_controller
 from modules import image_module
 from core import config
 import glob
@@ -47,10 +47,13 @@ class TestingController:
         kp_xy_ant = np.array([np.array([kp[0][0] for kp in kps_ant]), 
                             np.array([kp[0][1] for kp in kps_ant])])    
 
+
+        kp_xy_act_T = kp_xy_act.T
+        kp_xy_ant_T = kp_xy_ant.T
+
         # obtenemos las matrices (la mate)
         matrizProyecion1 = None
         matrizProyecion2 = None
-
 
         """
         Since you already have the matched points form the image you can use findFundamentalMat() 
@@ -62,6 +65,10 @@ class TestingController:
 
         then feed the projections and the points it into cv::sfm::triangulatePoints().
         """
+
+        F, mask = cv.findFundamentalMat(kp_xy_ant_T, kp_xy_act_T, cv.FM_RANSAC)
+
+        cv.projectionsFromFundamental
 
         points_in_4d = cv.triangulatePoints(matrizProyecion1, matrizProyecion2, kp_xy_ant, kp_xy_act)
         points_in_3d = cv.convertPointsFromHomogeneous(points_in_4d.transpose())
