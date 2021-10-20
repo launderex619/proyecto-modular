@@ -106,6 +106,7 @@ class TestingController:
         ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
         # ax.scatter([item[0][0] for item in points_in_3d], [item[0][1]])
 
+        print(points_in_3d)
         print("ornelaseschido")
 
 
