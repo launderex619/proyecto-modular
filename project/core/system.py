@@ -69,7 +69,7 @@ def init():
 
     # Inicializamos los controladores
     calibrationController.calibrate()
-    testing_controller.calibrate()
+    # testing_controller.calibrate()
 
     _tracker_controller.set_image(imagen_primer_frame)
     _tracker_controller.create_keypoints_self_image()

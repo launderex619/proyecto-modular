@@ -12,6 +12,9 @@ import glob
 
 class TestingController:
     def __init__(self):
+        self.orb = cv.ORB_create(nlevels=8, firstLevel=1, edgeThreshold=1,
+                                  nfeatures=20, fastThreshold=config.FAST_THRESHOLD)
+        self.BFMatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=False)
         self.object_points = (0, 0, 0)
         # self._path = config.PROJECT_PATH + '/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
@@ -43,8 +46,33 @@ class TestingController:
         return np.array([x0 + difx, y0 + dify, z0 + difz])
 
     def run(self):
-        kps_act = obtenerKeypoints(1)
-        kps_ant = obtenerKeypoints(2)
+        kps_act, desc_act, img_act = self.obtenerKeypointsYDescriptors(2)
+        kps_ant, desc_ant, img_ant = self.obtenerKeypointsYDescriptors(1)
+
+        img1 = cv.drawKeypoints(img_act, kps_act, 0, color=(0,255,0), flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        img2 = cv.drawKeypoints(img_ant, kps_ant, 0, color=(0,255,0), flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+        # cv.imshow("keypoints ant", img1)
+        # cv.imshow("keypoints act", img2)
+
+        plt.imshow(img1)
+        plt.show()
+        plt.imshow(img2)
+        plt.show()
+
+        matches = self.matchFeatures(desc_ant, desc_act)
+        
+        plt.imshow(
+            "matches",
+            cv.drawMatches(
+                img_ant,
+                kps_ant,
+                img_act,
+                kps_act,
+                matches,
+                None
+            )
+        )
 
         # Extrayendo X y Y de el keypoint
         kp_xy_act = np.array([np.array([kp[0][0] for kp in kps_act]),
@@ -109,32 +137,45 @@ class TestingController:
         print(points_in_3d)
         print("ornelaseschido")
 
-
-def Rx(theta):
-    return np.matrix([[1, 0, 0],
-                     [0, m.cos(theta), -m.sin(theta)],
-                     [0, m.sin(theta), m.cos(theta)]])
-
-
-def Ry(theta):
-    return np.matrix([[m.cos(theta), 0, m.sin(theta)],
-                     [0, 1, 0],
-                     [-m.sin(theta), 0, m.cos(theta)]])
+    def Rx(theta):
+        return np.matrix([[1, 0, 0],
+                        [0, m.cos(theta), -m.sin(theta)],
+                        [0, m.sin(theta), m.cos(theta)]])
 
 
-def Rz(theta):
-    return np.matrix([[m.cos(theta), -m.sin(theta), 0],
-                     [m.sin(theta), m.cos(theta), 0],
-                     [0, 0, 1]])
+    def Ry(theta):
+        return np.matrix([[m.cos(theta), 0, m.sin(theta)],
+                        [0, 1, 0],
+                        [-m.sin(theta), 0, m.cos(theta)]])
 
 
-def obtenerKeypoints(numeroImagen):
-    img = cv.imread(
-        f"{config.PROJECT_PATH}/proyecto-modular/project/assets/photos/photo_mtrx{numeroImagen}.jpeg")
-    gray = image_module.process_image(img)
-    img = image_module.resize_image(
-        img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+    def Rz(theta):
+        return np.matrix([[m.cos(theta), -m.sin(theta), 0],
+                        [m.sin(theta), m.cos(theta), 0],
+                        [0, 0, 1]])
 
-    # Find the chess board corners
-    _, kp = cv.findChessboardCorners(gray, (9, 6), None)
-    return kp
+
+    def obtenerKeypointsYDescriptors(self, numeroImagen):
+        img = cv.imread(
+            f"{config.PROJECT_PATH}/proyecto-modular/project/assets/photos/glorieta{numeroImagen}.png")
+        img = image_module.resize_image(
+            img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+        gray = image_module.process_image(img)
+
+        # Find the chess board corners
+        # _, kp = cv.findChessboardCorners(gray, (9, 6), None)
+        kp, desc = self.orb.detectAndCompute(gray, None)
+        return kp, desc, gray;
+
+    def matchFeatures(self, des_prev, desc_act):
+        if des_prev is None or len(des_prev) < 2:
+            return -1
+        if desc_act is None or len(desc_act) < 2:
+            return -1
+        matches = self.BFMatcher.knnMatch(des_prev, desc_act, k=2)
+        # Apply ratio test
+        goodMatches = []
+        for m, n in matches:
+            if m.distance < 0.70 * n.distance:
+                goodMatches.append([m])
+        return goodMatches
