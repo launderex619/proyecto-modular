@@ -20,7 +20,7 @@ def executeCalibration():
   objp[:,:2] = np.mgrid[0:chessboard_size[0], 0:chessboard_size[1]].T.reshape(-1, 2)
 
   # cargamos las imágenes como parámetros
-  calibration_patterns = glob.glob( 'C:/Git/proyecto-modular/refactor/calibration/patterns/*')
+  calibration_patterns = glob.glob( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/images/*')
   # print( calibration_patterns )
 
   # iteramos por cada imagen
@@ -48,11 +48,11 @@ def executeCalibration():
   ret, K, dist, rvecs, tvecs = cv2.calibrateCamera( obj_points, img_points, gry_img.shape[::-1], None, None  )
 
   # guardamos los parámetros en un archivo numpy
-  np.save( 'C:/Git/proyecto-modular/refactor/calibration/params/ret', ret )
-  np.save( 'C:/Git/proyecto-modular/refactor/calibration/params/K', K )
-  np.save( 'C:/Git/proyecto-modular/refactor/calibration/params/dist', dist )
-  np.save( 'C:/Git/proyecto-modular/refactor/calibration/params/rvecs', rvecs )
-  np.save( 'C:/Git/proyecto-modular/refactor/calibration/params/tvecs', tvecs )
+  np.save( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/ret', ret )
+  np.save( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/K', K )
+  np.save( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/dist', dist )
+  np.save( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/rvecs', rvecs )
+  np.save( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/tvecs', tvecs )
 
   # exif_img = PIL.Image.open( calibration_patterns[0] )
 
@@ -83,11 +83,11 @@ def executeCalibration():
 
 def loadCalibration():
   # cargamos datos calibrados
-  ret = np.load( 'C:/Git/proyecto-modular/refactor/calibration/params/ret.npy' )
-  K = np.load( 'C:/Git/proyecto-modular/refactor/calibration/params/K.npy' )
-  dist = np.load( 'C:/Git/proyecto-modular/refactor/calibration/params/dist.npy' )
-  rvecs = np.load( 'C:/Git/proyecto-modular/refactor/calibration/params/rvecs.npy' )
-  tvecs = np.load( 'C:/Git/proyecto-modular/refactor/calibration/params/tvecs.npy' )
+  ret = np.load( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/ret.npy' )
+  K = np.load( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/K.npy' )
+  dist = np.load( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/dist.npy' )
+  rvecs = np.load( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/rvecs.npy' )
+  tvecs = np.load( '/home/charly/Documentos/universidad/Modular/proyecto-modular/refactor/calibration/tvecs.npy' )
   # cargamos distancia focal
   # focal_length = np.load( './params/FocalLength.npy' )
   # retornamos
