@@ -1,5 +1,4 @@
-from controllers import ScrapperController
-
+from project.controllers.input_drone_data import scrapper_controller as sc
 
 class DroneDataReceiverModule:
     """
@@ -14,7 +13,7 @@ class DroneDataReceiverModule:
         self.drone_video_file_path = drone_video_file_path
         self.drone_data_file_path = drone_data_file_path
         self.drone_track_entity = None
-        self.scrapper_controller = ScrapperController()
+        self.scrapper_controller = sc.ScrapperController()
 
     def start_scrapping(self):
         """
