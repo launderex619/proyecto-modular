@@ -15,7 +15,6 @@ class DroneDataReceiverModule:
         self.drone_data_file_path = drone_data_file_path
         self.drone_track_entity = None
         self.scrapper_controller = ScrapperController()
-        self.start_scrapping()
 
     def start_scrapping(self):
         """
