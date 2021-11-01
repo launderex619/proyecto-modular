@@ -1,5 +1,6 @@
 from project.controllers.input_drone_data import scrapper_controller as sc
 
+
 class DroneDataReceiverModule:
     """
     This class is responsible for receiving the drone data from the drone.
@@ -28,13 +29,3 @@ class DroneDataReceiverModule:
         """
         self.start_scrapping()
         self.drone_track_entity.set_input_video(self.drone_video_file_path)
-
-
-if __name__ == '__main__':
-    """
-    The main function.
-    """
-    drone_data_receiver_module = DroneDataReceiverModule(
-        drone_video_file_path='pendiente...',
-        drone_data_file_path='/home/charly/Documentos/universidad/Modular/proyecto-modular/project/comms/flights/2021-10-24-testing.db')
-    drone_data_receiver_module.load_module()

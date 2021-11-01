@@ -1,5 +1,5 @@
-from entities.input_drone_data import DroneTrackEntity
-from entities.input_drone_data import DroneEntity
+from project.entities.input_drone_data import drone_track_entity as dte
+from project.entities.input_drone_data import drone_entity as de
 
 from typing import List, Tuple
 from copy import copy
@@ -16,17 +16,22 @@ class ScrapperController:
         self.chunks_of_raw_data = List[List]  # type: List[List[str]]
         self.number_of_chunks = 0
 
-    def start_scrap_data(self, data_file_path: str) -> DroneTrackEntity:
+    def start_scrap_data(self, data_file_path: str) -> dte.DroneTrackEntity:
         """
         This method scraps all data in the db file and returns a list of all the data.
         """
 
-        drone_track_entity = DroneTrackEntity()
-        self.chunks_of_raw_data, self.number_of_chunks = self.get_chunks_of_raw_data(
+        drone_track_entity = dte.DroneTrackEntity()
+        self.chunks_of_raw_data = self.get_chunks_of_raw_data(
             data_file_path)
+        self.chunks_of_raw_data = self.filter_bad_chunks_of_raw_data(
+            self.chunks_of_raw_data)
+        self.number_of_chunks = len(self.chunks_of_raw_data)
         for chunk in self.chunks_of_raw_data:
             drone_entity = self.get_drone_entity_from_chunk(chunk)
-            drone_track_entity.add_drone_entity(drone_entity)
+            # TODO: Check if drone_entity is valid
+            if drone_entity.is_valid():
+                drone_track_entity.add_drone_entity(drone_entity)
         drone_track_entity.set_video_duration_secs(len(self.number_of_chunks))
         drone_track_entity.set_start_time(
             drone_track_entity.get_drone_entity_at_index(0).time)
@@ -35,13 +40,12 @@ class ScrapperController:
 
         return drone_track_entity
 
-    def get_chunks_of_raw_data(self, data_file_path: str) -> Tuple[List[List[str]], int]:
+    def get_chunks_of_raw_data(self, data_file_path: str) -> List[List[str]]:
         """
         This method scraps the file, and gets the lines of each second and puts them into
         chunk_of_data variable wich is a list of strings.
         """
         chunks_of_raw_data = []
-        number_of_chunks = 0
         previus_timestamp = 'hh:mm:ss'
         with open(data_file_path, 'r') as data_file:
             current_chunk = []
@@ -52,10 +56,9 @@ class ScrapperController:
                         current_chunk.append(line)
                     else:
                         chunks_of_raw_data.append(copy(current_chunk))
-                        number_of_chunks += 1
                         previus_timestamp = current_timestamp
                         current_chunk = []
-        return chunks_of_raw_data, number_of_chunks
+        return chunks_of_raw_data
 
     def is_valid_line_to_chunk(self, line: str) -> bool:
         """
@@ -77,11 +80,30 @@ class ScrapperController:
             return False
         return True
 
-    def get_drone_entity_from_chunk(self, chunk: List[str]) -> DroneEntity:
+    def filter_bad_chunks_of_raw_data(self, chunks_of_raw_data: List[List[str]]) -> List[List[str]]:
+        """
+        This method filters the chunks of raw data removing bad inputs.
+        """
+        chunks_of_raw_data_filtered = []
+        for chunk in chunks_of_raw_data:
+            if self.is_valid_chunk(chunk):
+                chunks_of_raw_data_filtered.append(chunk)
+        return chunks_of_raw_data_filtered
+
+    def is_valid_chunk(self, chunk: List[str]) -> bool:
+        """
+        This method checks if the chunk is valid to put into the drone track entity.
+        """
+        NUBER_OF_LINES_IN_CHUNK_TO_BE_VALID = 3
+        if len(chunk) < NUBER_OF_LINES_IN_CHUNK_TO_BE_VALID:
+            return False
+        return True
+
+    def get_drone_entity_from_chunk(self, chunk: List[str]) -> de.DroneEntity:
         """
         This method iterates trough the chunk and returns a drone entity from its data.
         """
-        drone_entity = DroneEntity()
+        drone_entity = de.DroneEntity()
         for chunk_line in chunk:
             if self.is_valid_line_to_drone_entity(chunk_line):
                 line_type = self.get_type_of_information_contained_in_line(
@@ -123,7 +145,7 @@ class ScrapperController:
         else:  # 单位类型
             return 'LGPlaneInfoMoovent'
 
-    def get_drone_entities_from_line(self, line_type: str, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_entities_from_line(self, line_type: str, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns a drone entity from the line.
         """
@@ -144,7 +166,7 @@ class ScrapperController:
                 line, drone_entity)
         return drone_entity
 
-    def get_drone_props_lg_plane_hy_bean(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_lg_plane_hy_bean(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneHyBean.
 
@@ -163,7 +185,7 @@ class ScrapperController:
         drone_entity.attitude_yaw = json_line_data['LGPlaneHyBean']['AttitudeYaw']
         return drone_entity
 
-    def get_drone_props_lg_plane_gps_bean(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_lg_plane_gps_bean(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneGpsBean.
 
@@ -182,7 +204,7 @@ class ScrapperController:
         drone_entity.velocity = json_line_data['LGPlaneGpsBean']['Velocity']
         return drone_entity
 
-    def get_drone_props_sj_hy_info_9b_bean(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_sj_hy_info_9b_bean(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as SJHyInfo9BBean.
 
@@ -209,7 +231,7 @@ class ScrapperController:
         drone_entity.motors = json_line_data['SJHyInfo9BBean']['Motor']
         return drone_entity
 
-    def get_drone_props_lg_plane_info_coords(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_lg_plane_info_coords(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneInfoCoords.
 
@@ -228,7 +250,7 @@ class ScrapperController:
         drone_entity.velocity = json_line_data['LGPlaneInfoCoords']['Velocity']
         return drone_entity
 
-    def get_drone_props_lg_plane_info_moovent(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_lg_plane_info_moovent(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneInfoMoovent.
 
@@ -252,7 +274,7 @@ class ScrapperController:
         drone_entity.error = lines[5].split('精度:')[1]
         return drone_entity
 
-    def get_drone_props_lg_plane_info_moovement(self, line: str, drone_entity: DroneEntity) -> DroneEntity:
+    def get_drone_props_lg_plane_info_moovement(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneInfoMoovement.
 
