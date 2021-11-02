@@ -52,7 +52,7 @@ def init():
         "░░░░░░░░░░░░░░░░░Todos░los░derechos░reservados░░░░░░░░░░░░░░░░░░░░░\n",
     )
     # TODO: Cambiar esto por una webcam juas juas
-    _video_path = f'{config.PROJECT_PATH}/proyecto-modular/project/assets/video/test-city.mp4'
+    _video_path = f'{config.PROJECT_PATH}/proyecto-modular/project/assets/video/calibracion.mp4'
 
     # Declaracion de controladores
     calibrationController = CalibrationController()
@@ -69,7 +69,7 @@ def init():
 
     # Inicializamos los controladores
     calibrationController.calibrate()
-    testing_controller.calibrate()
+    # testing_controller.calibrate()
 
     _tracker_controller.set_image(imagen_primer_frame)
     _tracker_controller.create_keypoints_self_image()
@@ -209,15 +209,8 @@ def init():
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
-            plt.show()
-
-            Rt, jac = cv.Rodrigues(rvecs_anterior)
-            R = Rt.transpose()
-            x, y, z = -R * tvecs_anterior
-
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(x, y, z)
+            plt.xlim([0, 1])
+            plt.ylim([0, 1])
             plt.show()
         # creamos
         _tracker_controller.replaceLastFrame(kp_actual, dp)
