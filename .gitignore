@@ -80,3 +80,7 @@ __pycache__/
 
 #unity files
 unity/*
+
+.idea/*
+
+.vscode/*
