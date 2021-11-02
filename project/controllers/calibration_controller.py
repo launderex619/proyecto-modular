@@ -8,7 +8,7 @@ import glob
 class CalibrationController:
     def __init__(self):
         self.object_points = (0, 0, 0)
-        self._local_path = 'C:/Users/carlo/Documents/universidad/Modular'
+        self._local_path = f'{config.PROJECT_PATH}'
         self._video_path = f'{self._local_path}/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
         self.dist = None

@@ -1,4 +1,5 @@
 import numpy as np
+import math as m
 import cv2 as cv
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -7,12 +8,68 @@ from controllers import tracking_controller
 from modules import image_module
 from core import config
 import glob
+import time
+import open3d as o3d
 
+class Display:
+    def __init__(self):
+        self.W = 960
+        self.H = 540
+
+    def display_points2d(self, img, kpts, matches):
+        if kpts != 0:
+            for kpt in kpts:
+                cv.circle(img, (int(kpt.pt[0]), int(kpt.pt[1])), radius=2, color=(0,255,0), thickness=-1)
+        
+        if matches != 0:
+            for match in matches:
+                (u1, v1) = np.int32(match[0].pt)
+                (u2, v2) = np.int32(match[1].pt)
+                cv.line(img, (u1, v1), (u2, v2), color=(0,0,255), thickness=1)
+        return img
+
+
+    def display_points3d(self, tripoints3d, pcd, visualizer):
+        # open3d
+        if tripoints3d is not None:
+            pcd.clear()
+            pcd.points = o3d.utility.Vector3dVector(tripoints3d)
+            visualizer.remove_geometry(pcd)
+            visualizer.add_geometry(pcd)
+            visualizer.poll_events()
+            visualizer.update_renderer()
+            time.sleep(.2)
+
+    def display_vid(self, img):
+        cv.imshow("main", img)
+
+class PointMap(object):
+	def __init__(self):
+		self.array = [0,0,0]
+
+	def collect_points(self, tripoints):
+		if len(tripoints) > 0:
+			array_to_project = np.array([0,0,0])
+
+			x_points = [pt for pt in tripoints[0]]
+			y_points = [-pt for pt in tripoints[1]]
+			z_points = [-pt for pt in tripoints[2]]
+
+			for i in range(tripoints.shape[1]):
+				curr_array = np.array([x_points[i], y_points[i], z_points[i]])
+				array_to_project = np.vstack((array_to_project, curr_array))
+
+			array_to_project = array_to_project[1:, :]
+
+			return array_to_project
 
 class TestingController:
     def __init__(self):
+        self.orb = cv.ORB_create(nlevels=5, firstLevel=1, edgeThreshold=1,
+                                  nfeatures=50, fastThreshold=config.FAST_THRESHOLD)
+        self.BFMatcher = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=False)
         self.object_points = (0, 0, 0)
-        self._path = 'C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/video/calibracion.mp4'
+        # self._path = config.PROJECT_PATH + '/proyecto-modular/project/assets/video/calibracion.mp4'
         self.mtx = None
         self.dist = None
 
@@ -23,140 +80,160 @@ class TestingController:
         img = cv.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
         return img
 
-    def calibrate(self):
-        # termination criteria
-        criteria = (cv.TERM_CRITERIA_EPS +
-                    cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-        objp = np.zeros((6 * 9, 3), np.float32)
-        objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
-        axis = np.float32([[3, 0, 0], [0, 3, 0], [0, 0, -3]]).reshape(-1, 3)
-        # Arrays to store object points and image points from all the images.
-        objpoints = [[], []]  # 3d point in real world space
-        imgpoints = [[], []]  # 2d points in image plane.
-        # initialize an object based on the webcam
-        kp_actual = [[], []]
+    def rotate(self, phi, theta, psi):
+        phi = m.pi/2
+        theta = m.pi/4
+        psi = m.pi/2
 
-        for i in range(1, 3):
-            img = cv.imread(
-                f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
-            gray = image_module.process_image(img)
+        R = self.Rz(psi) * self.Ry(theta) * self.Rx(phi)
+        return R
 
-            img = image_module.resize_image(
-                img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+    def translate(self, x0, y0, z0, x1, y1, z1):
+        difx = x1 - x0
+        dify = y1 - y0
+        difz = z1 - z0
+        return np.array([x0 + difx, y0 + dify, z0 + difz])
 
-            # Find the chess board corners
-            ref, corners = cv.findChessboardCorners(gray, (9, 6), None)
+    def run(self):
+        #Obtenemos los keypoints del frame actual y el anterior
+        kps_act, desc_act, img_act = self.obtenerKeypointsYDescriptors(2)
+        kps_ant, desc_ant, img_ant = self.obtenerKeypointsYDescriptors(1)
 
-            if ref:
-                # If found, add object points, image points (after refining them)
-                objpoints[i-1] = [objp]
-                corners2 = cv.cornerSubPix(
-                    gray, corners, (11, 11), (-1, -1), criteria)
-                imgpoints[i-1] = [corners]
+        #Dibujamos los keypoints detectados
+        img1 = cv.drawKeypoints(img_act, kps_act, 0, color=(0,255,0), flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        img2 = cv.drawKeypoints(img_ant, kps_ant, 0, color=(0,255,0), flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-                kp_actual[i-1] = [None] * 54
-                idx = 0
-                for ele in corners2:
-                    pt = ele[0]
-                    dic = {'pt': pt}
-                    kp_actual[i-1][idx] = dic
-                    idx += 1
+        # Mostramos las imagenes
+        plt.imshow(img1)
+        plt.show()
+        plt.imshow(img2)
+        plt.show()
 
-                # Draw and display the corners
-                cv.drawChessboardCorners(img, (9, 6), corners2, ref)
-                cv.imshow(f'img{i}', img)
-                cv.waitKey(25)
+        # Obtenemos los matches y filtramos los keypoints que necesitamos del frame actual y el anterior
+        # recordando: query = actual; train = previo
+        matches, matches_no_filtro = self.matchFeatures(desc_ant, desc_act)
 
-                # TODO Hay que regresar la matriz de la camara para que se use en el System.py
-                # TODO return rvecs and tvecs or make them properties
-                ref, self.mtx, self.dist, rvecs, tvecs = cv.calibrateCamera(
-                    objpoints[i-1], imgpoints[i-1], gray.shape[::-1], None, None)
+        kp_xy_ant = []
+        kp_xy_act = []
+        for match in matches:
+            kp_xy_ant.append(np.asarray(kps_ant[match[0].trainIdx].pt))
+            kp_xy_act.append(np.asarray(kps_act[match[0].queryIdx].pt))
+        
+        kp_xy_ant = np.asarray(kp_xy_ant).T
+        kp_xy_act = np.asarray(kp_xy_act).T
+        
+        plt.imshow(cv.drawMatchesKnn(img_ant,kps_ant,img_act,kps_act,matches,None))
+        plt.show()
 
-        # print(objpoints)
-        # print(imgpoints)
+        # Angulos del dron euler
+        R1 = self.rotate(0, 0, 0)
+        # posiciones GPS (x, y, z) del dron
+        T1 = self.translate(0, 0, 0, 0, 0, 0)
 
-        _tracker_controller = tracking_controller.Tracker()
+        R2 = self.rotate(0, 0, 0)
+        T2 = self.translate(0, 0, 0, 10, 0, 0)
 
-        # for i in range(1,3):
-        #     img = cv.imread(f"C:/Users/carlo/Documents/universidad/Modular/proyecto-modular/project/assets/photos/photo{i}.jpg")
-        #     gray_image = image_module.process_image(img)
-        #
-        #     _tracker_controller.set_image(gray_image)
-        #
-        #     kp_actual[i-1], dp = _tracker_controller.detect_features_and_descriptors(gray_image)
+        projection_mtx1 = np.array(
+            [[R1[0,0],R1[0,1],R1[0,2],T1[0]],
+            [R1[1,0],R1[1,1],R1[1,2],T1[1]],
+            [R1[2,0],R1[2,1],R1[2,2],T1[2]]]
+        )
+        projection_mtx2 = np.array(
+            [[R2[0,0],R2[0,1],R2[0,2],T2[0]],
+            [R2[1,0],R2[1,1],R2[1,2],T2[1]],
+            [R2[2,0],R2[2,1],R2[2,2],T2[2]]]
+        )
 
-        objp_anterior = []
-        objp_actual = []
+        # multiplicar por la intrinseca
+        # self.K = np.array([[7.18856e+02, 0.0, 6.071928e+02],
+        #                   [0.0, 7.18856e+02, 1.852157e+02],
+        #                   [0.0, 0.0, 1.0]])
+        # self.pp = np.array([self.K[0, 2], self.K[1, 2]])
+        # self.focal = self.K[0, 0]
 
-        for p in kp_actual[1]:
-            objp_actual = np.append(
-                [objp_actual], [p['pt'][0], p['pt'][1], 0]).reshape(-1, 3)
+        points_in_4d = cv.triangulatePoints(
+            projection_mtx1, projection_mtx2, kp_xy_ant, kp_xy_act)
+        # Normalize points [x, y, z, 1]
+        points_in_3d = points_in_4d / points_in_4d[3]
 
-        for p in kp_actual[0]:
-            objp_anterior = np.append(
-                [objp_anterior], [[p['pt'][0], p['pt'][1], 0]]).reshape(-1, 3)
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # # ax.scatter([p[0] for p in points_in_3d], [p[1] for p in points_in_3d], [p[2] for p in points_in_3d])
+        # ax.scatter(points_in_3d[0], points_in_3d[1], points_in_3d[2])
+        # # ax.scatter([item[0][0] for item in points_in_3d], [item[0][1]])
+        
+        print(points_in_3d)
 
-        keypoints_frame_anterior = np.array(
-            [[kp['pt'][0], kp['pt'][1]] for kp in kp_actual[0]])
-        keypoints_frame_actual = np.array(
-            [[kp['pt'][0], kp['pt'][1]] for kp in kp_actual[1]])
+        pmap = PointMap()
+        display = Display()
 
-        if len(objp_anterior) > 0 and len(objp_actual) > 0:
-            ret, rvecs_anterior, tvecs_anterior = cv.solvePnP(
-                objp_anterior, keypoints_frame_anterior, self.mtx, self.dist)
-            ret, rvecs_actual, tvecs_actual = cv.solvePnP(
-                objp_actual, keypoints_frame_actual, self.mtx, self.dist)
+        pcd = o3d.geometry.PointCloud()
+        visualizer = o3d.visualization.Visualizer()
+        visualizer.create_window(window_name="3D plot", width=960, height=540)
 
-            # @ objp => object points (3d coordinates) cada keypoint que haya tenido match con el fram anterior (recorrer lista de los matches y hacer su proyeccoiob)
-            # @ rvecs => viene de pnp
-            # @ tvecs => viene de pnp
-            # @ mtx => viene de la calibracion
-            # @ dist => viene de la calibracion
+        xyz = pmap.collect_points(points_in_3d)
 
-            Rt, jac = cv.Rodrigues(rvecs_anterior)
-            R = Rt.transpose()
-            x, y, z = -R * tvecs_anterior
-            # imgpts, jac = cv.projectPoints(objp, rvecs, tvecs, calibrationController.mtx, calibrationController.dist)
+        display.display_points3d(xyz, pcd, visualizer)
 
-            # ? matrizProyecion1 => de donde se saca??
-            # ? matrizProyecion2 =>
-            # @ proj_points_1 => los sacamode de cv.projectpoints (frame anterior)
-            # @ proj_points_2 => los sacamode de cv.projectpoints
+    def Rx(self, theta):
+        return np.matrix([[1, 0, 0],
+                        [0, m.cos(theta), -m.sin(theta)],
+                        [0, m.sin(theta), m.cos(theta)]])
 
-            matrizProyecion1 = np.zeros(12).reshape(-1, 4)
-            matrizProyecion1[0][0] = rvecs_anterior[0]
-            matrizProyecion1[1][1] = rvecs_anterior[1]
-            matrizProyecion1[2][2] = rvecs_anterior[2]
 
-            matrizProyecion1[0][3] = tvecs_anterior[0]
-            matrizProyecion1[1][3] = tvecs_anterior[1]
-            matrizProyecion1[2][3] = tvecs_anterior[2]
+    def Ry(self, theta):
+        return np.matrix([[m.cos(theta), 0, m.sin(theta)],
+                        [0, 1, 0],
+                        [-m.sin(theta), 0, m.cos(theta)]])
 
-            matrizProyecion2 = np.zeros(12).reshape(-1, 4)
-            matrizProyecion2[0][0] = rvecs_actual[0]
-            matrizProyecion2[1][1] = rvecs_actual[1]
-            matrizProyecion2[2][2] = rvecs_actual[2]
 
-            matrizProyecion2[0][3] = tvecs_actual[0]
-            matrizProyecion2[1][3] = tvecs_actual[1]
-            matrizProyecion2[2][3] = tvecs_actual[2]
+    def Rz(self, theta):
+        return np.matrix([[m.cos(theta), -m.sin(theta), 0],
+                        [m.sin(theta), m.cos(theta), 0],
+                        [0, 0, 1]])
 
-            act_ = np.array([np.array([kp['pt'][0] for kp in kp_actual[1]]),
-                             np.array([kp['pt'][1] for kp in kp_actual[1]])])
 
-            ant_ = np.array([np.array([kp['pt'][0] for kp in kp_actual[0]]),
-                             np.array([kp['pt'][1] for kp in kp_actual[0]])])
+    def obtenerKeypointsYDescriptors(self, numeroImagen):
+        img = cv.imread(
+            f"{config.PROJECT_PATH}/proyecto-modular/project/assets/photos/photo_mtrx{numeroImagen}.jpeg")
+        img = image_module.resize_image(
+            img, config.VIDEO_WITDH_RESIZE, config.VIDEO_HEIGHT_RESIZE)
+        gray = image_module.process_image(img)
 
-            points_in_4d = cv.triangulatePoints(
-                matrizProyecion1, matrizProyecion2, ant_, act_)
-            points_in_3d = cv.convertPointsFromHomogeneous(
-                points_in_4d.transpose())
+        # Find the chess board corners
+        # _, kp = cv.findChessboardCorners(gray, (9, 6), None)
+        kp, desc = self.orb.detectAndCompute(gray, None)
+        return kp, desc, gray
 
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter([item[0][0] for item in points_in_3d], [item[0][1]
-                                                               for item in points_in_3d], [item[0][2] for item in points_in_3d])
-            # plt.xlim([0, 1])
-            # plt.ylim([0, 1])
-            plt.show()
+    def matchFeatures(self, des_prev, desc_act):
+        if des_prev is None or len(des_prev) < 2:
+            return -1
+        if desc_act is None or len(desc_act) < 2:
+            return -1
+        matches = self.BFMatcher.knnMatch(des_prev, desc_act, k=2)
+        
+        good_matches = []
+        idx_of_des_from_f1, idx_of_des_from_f2 = [], []
+        idx_set1, idx_set2 = set(), set()
+
+        # for m, n in matches:
+        #     if m.distance < 0.75 * n.distance:
+        #         p1 = f1.kpus[m.queryIdx]
+        #         p2 = f2.kpus[m.trainIdx]
+
+        #         # ensure distance is within 32
+        #         if m.distance < 32:
+        #             if m.queryIdx not in idx_set1 and m.trainIdx not in idx_set2:
+        #                 idx_of_des_from_f1.append(m.queryIdx)
+        #                 idx_of_des_from_f2.append(m.trainIdx)
+        #                 idx_set1.add(m.queryIdx)
+        #                 idx_set2.add(m.trainIdx)
+
+        #                 good_matches.append((p1, p2))
+
+        # Apply ratio test
+        goodMatches = []
+        for m, n in matches:
+            if m.distance < 0.70 * n.distance:
+                goodMatches.append([m])
+        return goodMatches, matches
