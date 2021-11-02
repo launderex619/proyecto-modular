@@ -1,6 +1,5 @@
-# from core import system
-import controllers.testing_controller as tc
+from controllers import testing_controller
 
-if __name__ == "__main__":
-    # system.init()
-    tc.TestingController().run()
+test = testing_controller.TestingController()
+
+test.run()

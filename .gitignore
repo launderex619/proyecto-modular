@@ -77,3 +77,10 @@ common/
 __pycache__/
 .vscode/
 */__pycache__/*
+
+#unity files
+unity/*
+
+.idea/*
+
+.vscode/*
