@@ -1,6 +1,5 @@
-from core import system
-from core import server
+from controllers import testing_controller
 
-if __name__ == "__main__":
-    # system.init()
-    server.start()
+test = testing_controller.TestingController()
+
+test.run()
