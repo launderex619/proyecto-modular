@@ -68,6 +68,5 @@ class DroneTrackValidatorController:
         :param drone_track_entity: DroneTrackEntity
         :return: None
         """
-        drone_track_entity_data = drone_track_entity.get_drone_track_entity_data()
-        for drone_entity in drone_track_entity_data:
+        for drone_entity in drone_track_entity.drone_entities:
             self.validate_drone_entity_data(drone_entity)

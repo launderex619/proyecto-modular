@@ -27,8 +27,8 @@ class DroneDataReceiverModule:
         """
         self.drone_track_entity = self.scrapper_controller.start_scrap_data_db(
             self.drone_data_file_path)
-        # self.drone_track_validator_controller.validate_drone_track(
-        #     self.drone_track_entity, self.drone_data_json_file_path)
+        self.drone_track_validator_controller.validate_drone_track(
+            self.drone_track_entity, self.drone_data_json_file_path)
         self.sync_video_with_drone_entities()
 
     def sync_video_with_drone_entities(self):
