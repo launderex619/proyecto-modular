@@ -3,20 +3,20 @@ class JsonDroneEntity:
         """
         This function initializes the drone entity.
         """
-        self.angle
-        self.back
-        self.d
-        self.detail_id
-        self.down
-        self.font
-        self.h
-        self.hs
-        self.id
-        self.lat
-        self.lefrRotate
-        self.left
-        self.lon
-        self.right
-        self.rightRotate
-        self.up
-        self.vs
+        self.angle = None
+        self.back = None
+        self.d = None
+        self.detail_id = None
+        self.down = None
+        self.font = None
+        self.h = None
+        self.hs = None
+        self.id = None
+        self.lat = None
+        self.lefrRotate = None
+        self.left = None
+        self.lon = None
+        self.right = None
+        self.rightRotate = None
+        self.up = None
+        self.vs = None
