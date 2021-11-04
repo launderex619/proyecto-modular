@@ -16,7 +16,7 @@ class ScrapperController:
         self.chunks_of_raw_data = List[List]  # type: List[List[str]]
         self.number_of_chunks = 0
 
-    def start_scrap_data(self, data_file_path: str) -> dte.DroneTrackEntity:
+    def start_scrap_data_db(self, data_file_path: str) -> dte.DroneTrackEntity:
         """
         This method scraps all data in the db file and returns a list of all the data.
         """
@@ -26,13 +26,12 @@ class ScrapperController:
             data_file_path)
         self.chunks_of_raw_data = self.filter_bad_chunks_of_raw_data(
             self.chunks_of_raw_data)
-        self.number_of_chunks = len(self.chunks_of_raw_data)
         for chunk in self.chunks_of_raw_data:
             drone_entity = self.get_drone_entity_from_chunk(chunk)
             # TODO: Check if drone_entity is valid
             if drone_entity.is_valid():
                 drone_track_entity.add_drone_entity(drone_entity)
-        drone_track_entity.set_video_duration_secs(len(self.number_of_chunks))
+        self.number_of_chunks = len(drone_track_entity.drone_entities)
         drone_track_entity.set_start_time(
             drone_track_entity.get_drone_entity_at_index(0).time)
         drone_track_entity.set_end_time(
@@ -118,15 +117,15 @@ class ScrapperController:
         This method checks if the line is valid to put into the drone entity.
         """
         part_to_analyze = line.split('   ')[1]
-        if line.startswith('功能字8B'):
+        if part_to_analyze.startswith('功能字8B'):
             return True
-        if line.startswith('功能字8C'):
+        if part_to_analyze.startswith('功能字8C'):
             return True
-        if line.startswith('功能字9B'):
+        if part_to_analyze.startswith('功能字9B'):
             return True
-        if line.startswith('飞机坐标'):
+        if part_to_analyze.startswith('飞机坐标'):
             return True
-        if line.startswith('单位类型'):
+        if part_to_analyze.startswith('单位类型'):
             return True
         return False
 
@@ -134,13 +133,14 @@ class ScrapperController:
         """
         This method returns the type of information contained in the line.
         """
-        if line.startswith('功能字8B'):
+        part_to_analyze = line.split('   ')[1]
+        if part_to_analyze.startswith('功能字8B'):
             return 'LGPlaneHyBean'
-        if line.startswith('功能字8C'):
+        elif part_to_analyze.startswith('功能字8C'):
             return 'LGPlaneGpsBean'
-        elif line.startswith('功能字9B'):
+        elif part_to_analyze.startswith('功能字9B'):
             return 'SJHyInfo9BBean'
-        elif line.startswith('飞机坐标'):
+        elif part_to_analyze.startswith('飞机坐标'):
             return 'LGPlaneInfoCoords'
         else:  # 单位类型
             return 'LGPlaneInfoMoovent'
@@ -162,7 +162,7 @@ class ScrapperController:
             drone_entity = self.get_drone_props_lg_plane_info_coords(
                 line, drone_entity)
         else:  # LGPlaneInfoMoovent
-            drone_entity = self.get_drone_props_lg_plane_info_moovent(
+            drone_entity = self.get_drone_props_lg_plane_info_moovement(
                 line, drone_entity)
         return drone_entity
 
@@ -177,12 +177,15 @@ class ScrapperController:
         :param drone_entity: the drone entity to update
         :return: the drone entity
         """
-        drone_entity.time = line.split('   ')[0]
-        line = line.removeprefix('功能字8B:')
-        json_line_data = json.loads(line)
-        drone_entity.attitude_roll = json_line_data['LGPlaneHyBean']['AttitudeRoll']
-        drone_entity.attitude_pitch = json_line_data['LGPlaneHyBean']['AttitudePitch']
-        drone_entity.attitude_yaw = json_line_data['LGPlaneHyBean']['AttitudeYaw']
+        lines = line.split('   ')
+        drone_entity.time = lines[0]
+        lines = lines[1].removeprefix('功能字8B:LGPlaneHyBean{').split(', ')
+        drone_entity.attitude_roll = float(
+            lines[0].removeprefix('AttitudeRoll='))
+        drone_entity.attitude_pitch = float(
+            lines[1].removeprefix('AttitudePitch='))
+        drone_entity.attitude_yaw = float(
+            lines[2].removeprefix('AttitudeYaw='))
         return drone_entity
 
     def get_drone_props_lg_plane_gps_bean(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
@@ -196,12 +199,13 @@ class ScrapperController:
         :param drone_entity: the drone entity to update
         :return: the drone entity
         """
-        drone_entity.time = line.split('   ')[0]
-        line = line.removeprefix('功能字8C:')
-        json_line_data = json.loads(line)
-        drone_entity.altitude = json_line_data['LGPlaneGpsBean']['Altitude']
-        drone_entity.speed = json_line_data['LGPlaneGpsBean']['Speed']
-        drone_entity.velocity = json_line_data['LGPlaneGpsBean']['Velocity']
+        lines = line.split('   ')
+        drone_entity.time = lines[0]
+        line = lines[1].removeprefix('功能字8C:LGPlaneGpsBean')
+        lines = line.removesuffix('}\n').split(', ')
+        drone_entity.altitude = float(lines[2].removeprefix('Altitude='))
+        drone_entity.speed = float(lines[4].removeprefix('Speed='))
+        drone_entity.velocity = float(lines[5].removeprefix('Velocity='))
         return drone_entity
 
     def get_drone_props_sj_hy_info_9b_bean(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
@@ -215,42 +219,28 @@ class ScrapperController:
         :param drone_entity: the drone entity to update
         :return: the drone entity
         """
-        drone_entity.time = line.split('   ')[0]
-        line = line.removeprefix('功能字9B:')
-        json_line_data = json.loads(line)
-        drone_entity.acc = json_line_data['SJHyInfo9BBean']['Acc']
-        drone_entity.gyr = json_line_data['SJHyInfo9BBean']['Gyr']
-        drone_entity.mag = json_line_data['SJHyInfo9BBean']['Mag']
-        drone_entity.baro = json_line_data['SJHyInfo9BBean']['baro']
-        drone_entity.imu_temp = json_line_data['SJHyInfo9BBean']['ImuTemp']
-        drone_entity.baro_temp = json_line_data['SJHyInfo9BBean']['BaroTemp']
-        drone_entity.roll = json_line_data['SJHyInfo9BBean']['Roll']
-        drone_entity.pitch = json_line_data['SJHyInfo9BBean']['Pitch']
-        drone_entity.thor = json_line_data['SJHyInfo9BBean']['Thor']
-        drone_entity.yaw = json_line_data['SJHyInfo9BBean']['Yaw']
-        drone_entity.motors = json_line_data['SJHyInfo9BBean']['Motor']
+        lines = line.split('   ')
+        drone_entity.time = lines[0]
+        line = lines[1].removeprefix('功能字9B:SJHyInfo9BBean')
+        lines = line.removesuffix('}\n').split(', ')
+        drone_entity.acc = [float(lines[0].removeprefix('{Acc=[')), float(
+            lines[1]), float(lines[2].removesuffix(']'))]
+        drone_entity.gyr = [float(lines[3].removeprefix('Gyr=[')), float(
+            lines[4]), float(lines[5].removesuffix(']'))]
+        drone_entity.mag = [float(lines[6].removeprefix('Mag=[')), float(
+            lines[7]), float(lines[8].removesuffix(']'))]
+        drone_entity.baro = float(lines[9].removeprefix('baro='))
+        drone_entity.imu_temp = float(lines[10].removeprefix('ImuTemp='))
+        drone_entity.baro_temp = float(lines[11].removeprefix('BaroTemp='))
+        drone_entity.roll = float(lines[12].removeprefix('Roll='))
+        drone_entity.pitch = float(lines[13].removeprefix('Pitch='))
+        drone_entity.thor = float(lines[14].removeprefix('Thor='))
+        drone_entity.yaw = float(lines[15].removeprefix('Yaw='))
+        drone_entity.motors = [float(lines[16].removeprefix('Motor=[')), float(
+            lines[17]), float(lines[18]), float(lines[19].removesuffix(']'))]
         return drone_entity
 
     def get_drone_props_lg_plane_info_coords(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
-        """
-        This method returns the drone props from the line defined as LGPlaneInfoCoords.
-
-            example of line:
-                19:01:52   功能字8A:LGPlaneInfoCoords{Lon=-1.03349728E9, Lat=2.07290432E8, Altitude=1007, Distance=0, Speed=0, Velocity=0}
-
-        :param line: the line to analyze
-        :param drone_entity: the drone entity to update
-        :return: the drone entity
-        """
-        drone_entity.time = line.split('   ')[0]
-        line = line.removeprefix('功能字8A:')
-        json_line_data = json.loads(line)
-        drone_entity.altitude = json_line_data['LGPlaneInfoCoords']['Altitude']
-        drone_entity.speed = json_line_data['LGPlaneInfoCoords']['Speed']
-        drone_entity.velocity = json_line_data['LGPlaneInfoCoords']['Velocity']
-        return drone_entity
-
-    def get_drone_props_lg_plane_info_moovent(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
         """
         This method returns the drone props from the line defined as LGPlaneInfoMoovent.
 
@@ -261,17 +251,20 @@ class ScrapperController:
         :param drone_entity: the drone entity to update
         :return: the drone entity
         """
-        drone_entity.time = line.split('   ')[0]
-        line = line.removeprefix('飞机坐标')
+        lines = line.split('   ')
+        drone_entity.time = lines[0]
+        line = lines[1].removeprefix('飞机坐标')
         lines = line.split('  ')
         lon_lat = lines[0].split('[')[1].split(']')[0].split(',')
-        drone_entity.lon = lon_lat[0]
-        drone_entity.lat = lon_lat[1]
-        drone_entity.gps_signal = lines[1].split(':')[1]
-        drone_entity.angle = lines[2].split(':')[1]
-        drone_entity.front_rear_tilt_angle = lines[3].split(':')[1]
-        drone_entity.left_right_tilt_angle = lines[4].split(':')[1]
-        drone_entity.error = lines[5].split('精度:')[1]
+        drone_entity.lon = float(lon_lat[0])
+        drone_entity.lat = float(lon_lat[1])
+        drone_entity.gps_signal = float(lines[1].split(':')[1])
+        drone_entity.angle = float(lines[2].split(':')[1].removesuffix('°'))
+        drone_entity.front_rear_tilt_angle = float(
+            lines[3].split(':')[1].removesuffix('°'))
+        drone_entity.left_right_tilt_angle = float(
+            lines[4].split(':')[1].removesuffix('°'))
+        drone_entity.error = float(lines[5].split('精度:')[1].removesuffix('\n'))
         return drone_entity
 
     def get_drone_props_lg_plane_info_moovement(self, line: str, drone_entity: de.DroneEntity) -> de.DroneEntity:
@@ -289,19 +282,19 @@ class ScrapperController:
         drone_entity.time = lines[0]
 
         if (drone_entity.d == None):
-            drone_entity.d = [lines[2].split(' ')[0].split(':')[1]]
+            drone_entity.d = [float(lines[2].split(' ')[0].split(':')[1])]
         else:
-            drone_entity.d.append(lines[2].split(' ')[0].split(':')[1])
+            drone_entity.d.append(float(lines[2].split(' ')[0].split(':')[1]))
         if (drone_entity.h == None):
-            drone_entity.h = [lines[2].split(' ')[1].split(':')[1]]
+            drone_entity.h = [float(lines[2].split(' ')[1].split(':')[1])]
         else:
-            drone_entity.h.append(lines[2].split(' ')[1].split(':')[1])
+            drone_entity.h.append(float(lines[2].split(' ')[1].split(':')[1]))
         if (drone_entity.ds == None):
-            drone_entity.ds = [lines[2].split(' ')[2].split(':')[1]]
+            drone_entity.ds = [float(lines[2].split(' ')[2].split(':')[1])]
         else:
-            drone_entity.ds.append(lines[2].split(' ')[2].split(':')[1])
+            drone_entity.ds.append(float(lines[2].split(' ')[2].split(':')[1]))
         if (drone_entity.vs == None):
-            drone_entity.vs = [lines[2].split(' ')[3].split(':')[1]]
+            drone_entity.vs = [float(lines[2].split(' ')[3].split(':')[1])]
         else:
-            drone_entity.vs.append(lines[2].split(' ')[3].split(':')[1])
+            drone_entity.vs.append(float(lines[2].split(' ')[3].split(':')[1]))
         return drone_entity

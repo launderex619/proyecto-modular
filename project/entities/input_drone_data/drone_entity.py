@@ -27,8 +27,8 @@ class DroneEntity:
         self.error = None                           # float - Error of the drone in distance in meters          
         self.d = None                               # float - Distance of the drone from the user drivining it           
         self.h = None                               # float - Height of the drone relative to the user driving it                    
-        self.ds = None                              # float - Horizontal velocity of the drone relative to the user driving it
-        self.vs = None                              # float - Vertical velocity of the drone relative to the user driving it
+        self.ds = None                              # float - Horizontal velocity of the drone
+        self.vs = None                              # float - Vertical velocity of the drone
 
     def is_valid(self) -> bool:
         """
