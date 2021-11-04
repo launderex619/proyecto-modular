@@ -2,8 +2,6 @@ from project.controllers.input_drone_data import scrapper_controller as sc
 from project.controllers.input_drone_data import drone_track_validator_controller as dtvc
 
 import cv2
-
-
 class DroneDataReceiverModule:
     """
     This class is responsible for receiving the drone data from the drone.
@@ -20,6 +18,7 @@ class DroneDataReceiverModule:
         self.drone_track_entity = None
         self.scrapper_controller = sc.ScrapperController()
         self.drone_track_validator_controller = dtvc.DroneTrackValidatorController()
+
 
     def start_scrapping(self):
         """
@@ -45,9 +44,15 @@ class DroneDataReceiverModule:
         """
         # fps = video.get(cv2.cv.CV_CAP_PROP_FPS)
         self.drone_track_entity.video_duration_secs = 171
-        self.drone_track_entity.drone_video_frames = cv2.VideoCapture(
-            self.drone_video_file_path)
-        expe_fr = self.drone_track_entity.video_duration_secs * 15  # * fps
+        vidcap = cv2.VideoCapture(self.drone_video_file_path)
+        frames = []
+        success = True
+        while success:
+            success, image = vidcap.read()
+            frames.append(image)
+        self.drone_track_entity.drone_video_frames = frames
+
+        expe_fr = self.drone_track_entity.video_duration_secs * 15 # * fps
         real_fr = len(self.drone_track_entity.drone_video_frames)
 
         if expe_fr != real_fr:
@@ -57,10 +62,11 @@ class DroneDataReceiverModule:
 
         # NOTE: for video input and ask how many frames in current second -> n
         frames = []
-        for i in range(0, real_fr, 15):  # n, fps
+        for i in range(0, real_fr, 15): # n, fps
             frames.append(self.drone_track_entity.drone_video_frames[i])
 
         self.drone_track_entity.drone_video_frames = frames
+
 
     def load_module(self):
         """
