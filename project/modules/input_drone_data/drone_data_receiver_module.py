@@ -50,22 +50,19 @@ class DroneDataReceiverModule:
         while success:
             success, image = vidcap.read()
             frames.append(image)
-        self.drone_track_entity.drone_video_frames = frames
+            
+        # expe_fr = self.drone_track_entity.video_duration_secs * 15 # * fps
+        # real_fr = len(self.drone_track_entity.drone_video_frames)
 
-        expe_fr = self.drone_track_entity.video_duration_secs * 15 # * fps
-        real_fr = len(self.drone_track_entity.drone_video_frames)
+        # if expe_fr != real_fr:
+        #     print("La cantidad es diferente")
+        #     print(expe_fr)
+        #     print(real_fr)
 
-        if expe_fr != real_fr:
-            print("La cantidad es diferente")
-            print(expe_fr)
-            print(real_fr)
-
-        # NOTE: for video input and ask how many frames in current second -> n
-        frames = []
-        for i in range(0, real_fr, 15): # n, fps
-            frames.append(self.drone_track_entity.drone_video_frames[i])
-
-        self.drone_track_entity.drone_video_frames = frames
+        final_frames = []
+        for i in range(0, len(frames), 15): # fps
+            final_frames.append(frames[i])
+        self.drone_track_entity.drone_video_frames = final_frames
 
 
     def load_module(self):
