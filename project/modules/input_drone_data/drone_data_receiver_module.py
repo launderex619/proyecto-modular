@@ -28,6 +28,18 @@ class DroneDataReceiverModule:
         self.drone_track_validator_controller.validate_drone_track(
             self.drone_track_entity, self.drone_data_json_file_path)
 
+    def sync_video_with_drone_entities(self):
+        """
+        Syncronizes the video with the drone entities.
+        """
+        """
+            TODO: Crear un controlador que se encargue de lo siguiente:
+                - Cargar el video en una lista de frames
+                    - Asegurarse que todos los segundos realmente tengan 15 frames
+                - Tomar unicamente un frame por segundo (1/fps) del video
+                - Esta lista de frames asignarlas a la proiedad drone_video_frames del drone_track_entity
+        """
+
     def load_module(self):
         """
         Loads the module, initializes the scrapped data and syncronizes video input.

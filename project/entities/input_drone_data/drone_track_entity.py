@@ -3,6 +3,7 @@ class DroneTrackEntity:
         self.input_video = None
         self.video_duration_secs = None
         self.drone_entities = []
+        self.drone_video_frames = []
         self.start_time = None
         self.end_time = None
 
