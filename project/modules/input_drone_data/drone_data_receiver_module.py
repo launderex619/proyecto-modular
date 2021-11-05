@@ -2,6 +2,8 @@ from project.controllers.input_drone_data import scrapper_controller as sc
 from project.controllers.input_drone_data import drone_track_validator_controller as dtvc
 
 import cv2
+
+
 class DroneDataReceiverModule:
     """
     This class is responsible for receiving the drone data from the drone.
@@ -19,13 +21,13 @@ class DroneDataReceiverModule:
         self.scrapper_controller = sc.ScrapperController()
         self.drone_track_validator_controller = dtvc.DroneTrackValidatorController()
 
-
     def start_scrapping(self):
         """
         Starts the scrapping process.
         """
         self.drone_track_entity = self.scrapper_controller.start_scrap_data_db(
             self.drone_data_file_path)
+        self.drone_track_entity.input_video = self.drone_video_file_path
         self.drone_track_validator_controller.validate_drone_track(
             self.drone_track_entity, self.drone_data_json_file_path)
         self.sync_video_with_drone_entities()
@@ -43,14 +45,16 @@ class DroneDataReceiverModule:
                 - Esta lista de frames asignarlas a la proiedad drone_video_frames del drone_track_entity
         """
         # fps = video.get(cv2.cv.CV_CAP_PROP_FPS)
-        self.drone_track_entity.video_duration_secs = 171
         vidcap = cv2.VideoCapture(self.drone_video_file_path)
         frames = []
         success = True
         while success:
             success, image = vidcap.read()
-            frames.append(image)
-            
+            if success:
+                image = cv2.resize(image, (0, 0), fx=0.10, fy=0.10)
+                cv2.imshow('Frame', image)
+                frames.append(image)
+
         # expe_fr = self.drone_track_entity.video_duration_secs * 15 # * fps
         # real_fr = len(self.drone_track_entity.drone_video_frames)
 
@@ -60,10 +64,9 @@ class DroneDataReceiverModule:
         #     print(real_fr)
 
         final_frames = []
-        for i in range(0, len(frames), 15): # fps
+        for i in range(0, len(frames), 15):  # fps
             final_frames.append(frames[i])
         self.drone_track_entity.drone_video_frames = final_frames
-
 
     def load_module(self):
         """
